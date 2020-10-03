@@ -3,7 +3,7 @@ package mocks.example_project.src.views;
 public class PetRelationshipView {
 
     public void drawDog(DogView dv) {
-        // Do something
+        dv.draw();
     }
 
     public void forceRender() {
