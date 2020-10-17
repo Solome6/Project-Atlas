@@ -1,6 +1,7 @@
-package atlas.src.test.java.atlas;
+package atlas;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +30,6 @@ class AppTest {
      */
     @Test
     void testApp3() {
-        assertNotEquals​(1 - 1, 1);
+        assertNotEquals(1 - 1, 1);
     }
 }
