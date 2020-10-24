@@ -41,7 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             // TODO: TEMPORARY
-            fs.mkdirSync(path.resolve(__dirname, "./mocks"));
+            !fs.existsSync(path.resolve(__dirname, "./mocks")) &&
+                fs.mkdirSync(path.resolve(__dirname, "./mocks"));
             fs.writeFileSync(path.resolve(__dirname, "./mocks/mock1.json"), generateRandomJSON());
 
             // TODO: TEMPORARY
