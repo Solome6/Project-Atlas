@@ -1,6 +1,6 @@
 package mocks.example_project.src.models;
 
-public class Dog implements Pet {
+public abstract class Dog implements Pet {
     public Person owner;
     public String name;
     public String breed;
@@ -26,5 +26,7 @@ public class Dog implements Pet {
     public void setName(String name) {
         this.name = name;
     }
+
+    public abstract String bark();
 
 }
