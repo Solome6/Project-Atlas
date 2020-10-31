@@ -7,6 +7,9 @@ import atlas.groups.expressions.ExpressionGroup;
 
 public class FieldGroup implements IFileMemberGroup {
 
+    public FieldGroup() {
+
+    }
 
     public FileGroup getFileGroup() {
         return null;
@@ -19,7 +22,6 @@ public class FieldGroup implements IFileMemberGroup {
     public List<ExpressionGroup> getOccurrences() {
         return null;
     }
-
 
     public List<IGroup> getChildrenGroup() {
         return new ArrayList<IGroup>();

@@ -1,5 +1,14 @@
 package atlas.groups;
 
 public class CodeContainer {
-	public CodeRegion codeRegion;
+
+	private CodeRegion codeRegion;
+
+	public CodeContainer(CodeRegion codeRegion) {
+		this.codeRegion = codeRegion;
+	}
+
+	public String toString() {
+		return codeRegion.toString();
+	}
 }
