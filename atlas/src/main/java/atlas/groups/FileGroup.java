@@ -4,6 +4,13 @@ import java.util.List;
 
 public class FileGroup implements IGroup {
 
+/**
+ * Basic constructor to create a FileGroup
+ */
+  public FileGroup(String path, IGroup parent) {
+  
+  }
+
 	/**
      * Returns the children groups nested inside this IGroup.
      *

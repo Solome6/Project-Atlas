@@ -4,6 +4,13 @@ import java.util.List;
 
 public class DirectoryGroup implements IGroup {
 
+  private IGroup parent;
+  private List<IGroup> children;
+
+  public DirectoryGroup(String path, IGroup parent) {
+
+  }
+
 	/**
      * Returns the children groups nested inside this IGroup.
      *
