@@ -24,6 +24,10 @@ public class PersonDogController {
                 Corgi corgi = (Corgi) pet;
                 Dog dog = corgi;
 
+                pet.setName(corgi.getName());
+
+                pet.getOwner().getSocialSecurity();
+
                 System.out.println(corgi.bark());
                 System.out.println(dog.bark());
                 System.out.println(dog.getName());
