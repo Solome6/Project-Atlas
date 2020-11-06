@@ -12,7 +12,7 @@ public class DirectoryRootTracker {
         this.rootDir = rootDir;
     }
 
-public DirectoryRootTracker getInstance(String rootDir) {
+public static DirectoryRootTracker getInstance(String rootDir) {
     if (root == null) {
         this.root = this.DirectoryRootTracker(rootDir);
     }

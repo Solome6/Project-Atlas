@@ -1,6 +1,11 @@
 package atlas.groups.expressions;
 
-public class ChainedExpression {
+import atlas.groups.FileGroup;
+import atlas.groups.IFileChildrenGroup;
+import atlas.groups.IGroup;
+import java.util.List;
+
+public class ChainedExpression implements IFileChildrenGroup {
 
 	private String expression;
 
@@ -12,4 +17,18 @@ public class ChainedExpression {
 		return this.expression;
 	}
 
+    @Override
+    public FileGroup getFileGroup() {
+        return null;
+    }
+
+    @Override
+    public List<? extends IGroup> getChildrenGroup() {
+        return null;
+    }
+
+    @Override
+    public IGroup getParentGroup() {
+        return null;
+    }
 }

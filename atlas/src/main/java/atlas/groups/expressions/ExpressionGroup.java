@@ -10,7 +10,7 @@ public class ExpressionGroup implements IExpressionParentGroup {
 	/**
      *
      *
-     * @Return the File that the child expressions are apart of
+     * @return the File that the child expressions are apart of
      */
 	public FileGroup getFileGroup() {
 		// do something
@@ -20,7 +20,7 @@ public class ExpressionGroup implements IExpressionParentGroup {
 	/**
      * Returns the children groups nested inside this IGroup.
      *
-     * @Return a list of IGroups.
+     * @return a list of IGroups.
      */
 	@Override
     public List<? extends IGroup> getChildrenGroup() {
@@ -29,7 +29,7 @@ public class ExpressionGroup implements IExpressionParentGroup {
 	}
 
     /**
-     * Returns the main parent IGroup this IGroup is a child of.
+     * @return the main parent IGroup this IGroup is a child of.
      */
 	@Override
     public IGroup getParentGroup() {
