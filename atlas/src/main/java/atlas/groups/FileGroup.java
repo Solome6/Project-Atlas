@@ -38,42 +38,36 @@ public class FileGroup implements IGroup {
         File file = new File(path);
         if (!file.exists()) {
             throw new Exception("createChildren: Unable to find file with path=" + path);
-        }
+        } else {
+            List<MethodCallExpr> expressions = new ArrayList<>();
 
-        List<MethodCallExpr> expressionCalls = new ArrayList<>();
-        List<MethodCallExpr> chainedExpressionCalls = new ArrayList<>();
-
-
-        new VoidVisitorAdapter<Object>() {
-            public void visit(ClassOrInterfaceDeclaration c, Object arg) {
-                super.visit(c, arg);
-                for (MethodDeclaration m : c.getMethods()) {
-                    if (m.getBody().isPresent()) {
-                        BlockStmt body = m.getBody().get();
-                        body.findAll(ExpressionStmt.class).forEach(exprstmt -> {
-                            if (exprstmt.getExpression().isMethodCallExpr()) {
-                                MethodCallExpr mce = exprstmt.getExpression().asMethodCallExpr();
-                                if (ParserUtility.pointsToExternal(mce, c.getMethods())) {
-                                    if (exprstmt.findAll(MethodCallExpr.class).isEmpty()) {
-                                        expressionCalls.add(mce);
-                                    } else {
-                                        chainedExpressionCalls.add(mce);
-                                    }
+            new VoidVisitorAdapter<Object>() {
+                @Override
+                public void visit(ClassOrInterfaceDeclaration c, Object arg) {
+                    super.visit(c, arg);
+                    for (MethodDeclaration m : c.getMethods()) {
+                        if (m.getBody().isPresent()) {
+                            BlockStmt body = m.getBody().get();
+                            body.findAll(MethodCallExpr.class).forEach(mce -> {
+                                if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin()
+                                    .get().line
+                                    && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin()
+                                    .get().column) {
+                                    // swap last element with this method call
+                                } else if (
+                                    mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin()
+                                        .get().line
+                                        && mce.getBegin().get().column != expressions.get(expressions.size() - 1)
+                                        .getBegin().get().column) {
+                                    // new Chained Expression
+                                } else {
+                                    // new expression
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 }
-            }
-        }.visit(StaticJavaParser.parse(file), null);
-
-        for (MethodCallExpr mce : expressionCalls) {
-            ExpressionGroup exg = new ExpressionGroup();
-            this.childrenGroups.add(exg);
-        }
-        for (MethodCallExpr mce : chainedExpressionCalls) {
-            ChainedExpression chainedExpr = new ChainedExpression("");
-            this.childrenGroups.add(chainedExpr);
+            }.visit(StaticJavaParser.parse(file), null);
         }
     }
 
@@ -83,16 +77,14 @@ public class FileGroup implements IGroup {
      * @return a list of IGroups.
      */
     public List<? extends IGroup> getChildrenGroup() {
-        // do something
-        return null;
+        return this.childrenGroups;
     }
 
     /**
      * Returns the main parent IGroup this IGroup is a child of.
      */
     public IGroup getParentGroup() {
-        // do something
-        return null;
+        return this.parent;
     }
 
     public void addChild(IFileChildrenGroup child) {
