@@ -1,21 +1,15 @@
 package atlas.groups;
 
-import atlas.ParserUtility;
-import atlas.groups.expressions.ChainedExpression;
-import atlas.groups.expressions.ExpressionGroup;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
-import com.github.javaparser.JavaParser;
 
 public class FileGroup implements IGroup {
 
@@ -31,7 +25,7 @@ public class FileGroup implements IGroup {
     public FileGroup(String path, IGroup parent) throws Exception {
         this.parent = parent;
         this.path = path;
-        createChildren(path);
+        this.createChildren(path);
     }
 
     private void createChildren(String path) throws Exception {

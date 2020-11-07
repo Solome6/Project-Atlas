@@ -5,7 +5,7 @@ import atlas.groups.IFileChildrenGroup;
 import atlas.groups.IGroup;
 import java.util.List;
 
-public class ChainedExpression implements IFileChildrenGroup {
+public class ChainedExpression extends ExpressionGroup {
 
 	private String expression;
 
