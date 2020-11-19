@@ -9,27 +9,21 @@ public class DirectoryRootTracker {
     public static String rootDir;
 
     private DirectoryRootTracker(String rootDir) {
-        this.rootDir = rootDir;
+        DirectoryRootTracker.rootDir = rootDir;
     }
 
-public static DirectoryRootTracker getInstance(String rootDir) {
-    if (root == null) {
-        this.root = this.DirectoryRootTracker(rootDir);
+    public static DirectoryRootTracker getInstance(String rootDir) {
+        if (root == null) {
+            root = new DirectoryRootTracker(rootDir);
+        }
+        return root;
     }
-    return this;
-}
 
-public DirectoryRootTracker getInstance() {
-    if (typeSolver == null) {
-        throw new IllegalStateException("Instance must be initialized with a directory first.");
-    } else {
-        return this;
+    public static DirectoryRootTracker getInstance() {
+        if (root == null) {
+            throw new IllegalStateException("Instance must be initialized with a directory first.");
+        } else {
+            return root;
+        }
     }
-}
-
-
-
-
-
-
 }

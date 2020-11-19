@@ -1,13 +1,19 @@
 package atlas.groups;
 
+import com.github.javaparser.ast.body.FieldDeclaration;
 import java.util.List;
 import java.util.ArrayList;
 
-import atlas.groups.expressions.ExpressionGroup;
+public class FieldGroup implements IFileChildrenGroup {
 
-public class FieldGroup implements IFileMemberGroup {
+    private final IGroup parent;
+    private final CodeRegion pos;
+//    private final CodeRegion pointsTo;
 
-    public FieldGroup() {
+    public FieldGroup(FieldDeclaration fieldDecl, FileGroup parent) {
+        this.parent = parent;
+        this.pos = new CodeRegion(fieldDecl.getBegin().get().line, fieldDecl.getBegin().get().column,
+            fieldDecl.getEnd().get().line, fieldDecl.getEnd().get().column);
 
     }
 
@@ -16,14 +22,10 @@ public class FieldGroup implements IFileMemberGroup {
     }
 
     public IGroup getParentGroup() {
-        return null;
-    }
-
-    public List<ExpressionGroup> getOccurrences() {
-        return null;
+        return this.parent;
     }
 
     public List<IGroup> getChildrenGroup() {
-        return new ArrayList<IGroup>();
+        return new ArrayList<>();
     }
 }

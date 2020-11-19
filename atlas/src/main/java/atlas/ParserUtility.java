@@ -1,5 +1,6 @@
 package atlas;
 
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
@@ -29,18 +30,9 @@ public class ParserUtility {
         return true;
     }
 
-    /**
-     * Determines if a method call actually points to an external file.
-     *
-     * @return True if the given MethodCallExpression points to an external file, false otherwise.
-     */
-    public static boolean isChainedExpressionCall(MethodCallExpr methodCallName, List<MethodDeclaration> methods) {
-        for (MethodDeclaration md : methods) {
-            if (md.getNameAsString().equals(methodCallName.getNameAsString())
-                || typeSolver.solveType(methodCallName.getNameAsString()).isJavaLangObject()) {
-                return false;
-            }
-        }
-        return true;
+    public static boolean isExternalType(FieldDeclaration fieldDecl) {
+        return false;
     }
+
+
 }

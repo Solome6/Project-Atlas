@@ -2,7 +2,7 @@ package atlas.groups;
 
 public class CodeContainer {
 
-	private CodeRegion codeRegion;
+	private final CodeRegion codeRegion;
 
 	public CodeContainer(CodeRegion codeRegion) {
 		this.codeRegion = codeRegion;

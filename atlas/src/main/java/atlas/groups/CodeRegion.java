@@ -2,10 +2,10 @@ package atlas.groups;
 
 public class CodeRegion {
 
-	private int startLine;
-	private int endLine;
-	private int startCol;
-	private int endCol;
+	private final int startLine;
+	private final int endLine;
+	private final int startCol;
+	private final int endCol;
 
 	public CodeRegion(int startLine, int endLine, int startCol, int endCol) {
 		this.startLine = startLine;

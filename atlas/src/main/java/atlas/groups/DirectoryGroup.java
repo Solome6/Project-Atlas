@@ -1,16 +1,18 @@
 package atlas.groups;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 import java.util.Objects;
 
 public class DirectoryGroup implements IGroup {
 
-    private IGroup parent;
+    private final IGroup parent;
     private List<IGroup> children;
 
     public DirectoryGroup(String path) throws Exception {
         this.parent = null;
+        this.children = new ArrayList<>();
         this.createChildren(path);
     }
 

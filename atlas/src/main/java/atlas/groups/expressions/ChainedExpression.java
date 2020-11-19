@@ -1,25 +1,28 @@
 package atlas.groups.expressions;
 
 import atlas.groups.FileGroup;
-import atlas.groups.IFileChildrenGroup;
 import atlas.groups.IGroup;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import java.util.List;
 
 public class ChainedExpression extends ExpressionGroup {
 
-	private String expression;
+    private final MethodCallExpr expression;
+    private final IExpressionParentGroup parent;
 
-	public ChainedExpression(String expression) {
-		this.expression = expression;
+	public ChainedExpression(MethodCallExpr expression, IExpressionParentGroup parent) {
+        super(expression, parent);
+        this.expression = expression;
+        this.parent = parent;
 	}
 
 	public String toString() {
-		return this.expression;
+		return this.expression.toString();
 	}
 
     @Override
     public FileGroup getFileGroup() {
-        return null;
+	    return null;
     }
 
     @Override
@@ -29,6 +32,6 @@ public class ChainedExpression extends ExpressionGroup {
 
     @Override
     public IGroup getParentGroup() {
-        return null;
+        return this.parent;
     }
 }

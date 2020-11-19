@@ -1,23 +1,20 @@
 package atlas.groups;
 
+import atlas.ParserUtility;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import java.io.File;
-import java.security.CodeSource;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FileGroup implements IGroup {
 
     private List<IFileChildrenGroup> childrenGroups;
-    private List<FieldGroup> occurences;
-    private CodeSource code;
-    private String path;
-    private IGroup parent;
+    private CodeRegion code;
+    private final String path;
+    private final IGroup parent;
 
     /**
      * Basic constructor to create a FileGroup
@@ -33,31 +30,20 @@ public class FileGroup implements IGroup {
         if (!file.exists()) {
             throw new Exception("createChildren: Unable to find file with path=" + path);
         } else {
-            List<MethodCallExpr> expressions = new ArrayList<>();
-
+            FileGroup thisFile = this;
             new VoidVisitorAdapter<Object>() {
                 @Override
                 public void visit(ClassOrInterfaceDeclaration c, Object arg) {
                     super.visit(c, arg);
+                    code = new CodeRegion(0, 0, c.getEnd().get().line, c.getEnd().get().column);
+                    for (FieldDeclaration fd : c.getFields()) {
+                        if (ParserUtility.isExternalType(fd)) {
+                            childrenGroups.add(new FieldGroup(fd, thisFile));
+                        }
+                    }
                     for (MethodDeclaration m : c.getMethods()) {
                         if (m.getBody().isPresent()) {
-                            BlockStmt body = m.getBody().get();
-                            body.findAll(MethodCallExpr.class).forEach(mce -> {
-                                if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin()
-                                    .get().line
-                                    && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin()
-                                    .get().column) {
-                                    // swap last element with this method call
-                                } else if (
-                                    mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin()
-                                        .get().line
-                                        && mce.getBegin().get().column != expressions.get(expressions.size() - 1)
-                                        .getBegin().get().column) {
-                                    // new Chained Expression
-                                } else {
-                                    // new expression
-                                }
-                            });
+                           childrenGroups.add(new FunctionGroup(m, thisFile));
                         }
                     }
                 }
