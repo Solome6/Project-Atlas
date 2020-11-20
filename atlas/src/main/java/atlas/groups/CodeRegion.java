@@ -8,6 +8,13 @@ public class CodeRegion {
 	private final int endCol;
     private final String path;
 
+    public CodeRegion() {
+        this.startLine = 0;
+        this.startCol = 0;
+        this.endCol = 0;
+        this.endLine = 0;
+        this.path = "";
+    }
 
     public CodeRegion(int startLine, int endLine, int startCol, int endCol, String path) {
 		this.startLine = startLine;

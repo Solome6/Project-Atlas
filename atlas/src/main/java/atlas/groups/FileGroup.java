@@ -7,11 +7,12 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileGroup implements IGroup {
 
-    private List<IFileChildrenGroup> childrenGroups;
+    private final List<IFileChildrenGroup> children;
     private CodeRegion code;
     private final String path;
     private final IGroup parent;
@@ -22,6 +23,8 @@ public class FileGroup implements IGroup {
     public FileGroup(String path, IGroup parent) throws Exception {
         this.parent = parent;
         this.path = path;
+        this.children = new ArrayList<>();
+        this.code = new CodeRegion();
         this.createChildren(path);
     }
 
@@ -39,12 +42,12 @@ public class FileGroup implements IGroup {
                         c.getFullyQualifiedName().get());
                     for (FieldDeclaration fd : c.getFields()) {
                         if (ParserUtility.isExternalType(fd, c)) {
-                            childrenGroups.add(new FieldGroup(fd, thisFile));
+                            children.add(new FieldGroup(fd, thisFile));
                         }
                     }
                     for (MethodDeclaration m : c.getMethods()) {
                         if (m.getBody().isPresent()) {
-                            childrenGroups.add(new FunctionGroup(m, thisFile));
+                            children.add(new FunctionGroup(m, thisFile));
                         }
                     }
                 }
@@ -55,7 +58,7 @@ public class FileGroup implements IGroup {
 
     @Override
     public List<? extends IGroup> getChildrenGroup() {
-        return this.childrenGroups;
+        return this.children;
     }
 
 

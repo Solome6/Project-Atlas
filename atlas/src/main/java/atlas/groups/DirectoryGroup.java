@@ -8,17 +8,12 @@ import java.util.Objects;
 public class DirectoryGroup implements IGroup {
 
     private final IGroup parent;
-    private List<IGroup> children;
-    private String path;
-
-    public DirectoryGroup(String path) throws Exception {
-        this.parent = null;
-        this.children = new ArrayList<>();
-        this.createChildren(path);
-        this.path = path;
-    }
+    private final List<IGroup> children;
+    private final String path;
 
     public DirectoryGroup(String path, IGroup parent) throws Exception {
+        this.path = path;
+        this.children = new ArrayList<>();
         this.parent = parent;
         this.createChildren(path);
     }

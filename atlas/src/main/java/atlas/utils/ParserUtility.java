@@ -1,11 +1,15 @@
 package atlas.utils;
 
 import atlas.utils.DirectoryRootTracker;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
@@ -60,5 +64,23 @@ public class ParserUtility {
         SymbolReference<ResolvedMethodDeclaration> methodRef = f.solve(mce);
         ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
         return methodDecl.getQualifiedSignature();
+    }
+
+    public static String resolveFieldDeclaration(FieldDeclaration fd) {
+        String resolvedName = "";
+        TypeSolver typeSolver = new CombinedTypeSolver(
+            new ReflectionTypeSolver(),
+            new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
+
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
+        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
+
+        ResolvedType rt = fd.getVariables().get(0).getType().resolve();
+        if (rt.isReferenceType()) {
+            ResolvedReferenceType resolvedReferenceType = rt.asReferenceType();
+            resolvedName = resolvedReferenceType.getQualifiedName();
+        }
+
+        return resolvedName;
     }
 }
