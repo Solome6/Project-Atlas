@@ -1,47 +1,52 @@
 package atlas.groups;
 
-import com.github.javaparser.Position;
+import atlas.utils.ParserUtility;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpressionGroup implements IExpressionParentGroup {
 
-    private final Position pos;
-    private IExpressionParentGroup parent;
-    private FunctionGroup pointer;
+    private final IExpressionParentGroup parent;
+    private final CodeRegion pointsTo;
+    private final CodeRegion pointsFrom;
+    private final List<ExpressionGroup> children;
 
     public ExpressionGroup(MethodCallExpr method, IExpressionParentGroup parent) {
         this.parent = parent;
-        this.pos = method.getBegin().get();
+        this.children = new ArrayList<>();
+        this.createChildren(method);
+        this.pointsFrom = new CodeRegion(method.getBegin().get().line, method.getEnd().get().line,
+            method.getBegin().get().column, method.getEnd().get().column, this.getPath());
+
+        MethodDeclaration dest = ParserUtility.fromMethodCallExpression(method);
+        this.pointsTo = new CodeRegion(dest.getBegin().get().line, dest.getEnd().get().line,
+            dest.getBegin().get().column, dest.getEnd().get().column, ParserUtility.getCallSignature(method));
     }
 
-	/**
-     *
-     *
-     * @return the File that the child expressions are apart of
-     */
-	public FileGroup getFileGroup() {
-		// do something
-		return null;
-	}
+    private void createChildren(MethodCallExpr method) {
 
-	/**
-     * Returns the children groups nested inside this IGroup.
-     *
-     * @return a list of IGroups.
-     */
-	@Override
+    }
+
+    @Override
+    public FileGroup getFileGroup() {
+        return this.parent.getFileGroup();
+    }
+
+    @Override
     public List<? extends IGroup> getChildrenGroup() {
-		// do something
-		return null;
-	}
+        // do something
+        return null;
+    }
 
-    /**
-     * @return the main parent IGroup this IGroup is a child of.
-     */
-	@Override
+    @Override
     public IGroup getParentGroup() {
-		// do something
-		return null;
-	}
+        return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        return this.parent.getPath();
+    }
 }

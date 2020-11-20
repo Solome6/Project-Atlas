@@ -5,12 +5,15 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import java.util.List;
+import java.util.Optional;
 
 public class ParserUtility {
 
@@ -42,5 +45,20 @@ public class ParserUtility {
         return false;
     }
 
+    public static MethodDeclaration fromMethodCallExpression(MethodCallExpr mce) {
+        JavaParserFacade f = JavaParserFacade.get(typeSolver);
+        SymbolReference<ResolvedMethodDeclaration> methodRef = f.solve(mce);
+        ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
 
+        Optional<MethodDeclaration> astDecl = methodDecl.toAst();
+
+        return astDecl.get();
+    }
+
+    public static String getCallSignature(MethodCallExpr mce) {
+        JavaParserFacade f = JavaParserFacade.get(typeSolver);
+        SymbolReference<ResolvedMethodDeclaration> methodRef = f.solve(mce);
+        ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
+        return methodDecl.getQualifiedSignature();
+    }
 }

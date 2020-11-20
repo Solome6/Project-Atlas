@@ -9,11 +9,13 @@ public class DirectoryGroup implements IGroup {
 
     private final IGroup parent;
     private List<IGroup> children;
+    private String path;
 
     public DirectoryGroup(String path) throws Exception {
         this.parent = null;
         this.children = new ArrayList<>();
         this.createChildren(path);
+        this.path = path;
     }
 
     public DirectoryGroup(String path, IGroup parent) throws Exception {
@@ -32,19 +34,19 @@ public class DirectoryGroup implements IGroup {
         }
     }
 
-    /**
-     * Returns the children groups nested inside this IGroup.
-     *
-     * @return a list of IGroups.
-     */
+
+    @Override
     public List<IGroup> getChildrenGroup() {
         return this.children;
     }
 
-    /**
-     * @return the main parent IGroup this IGroup is a child of.
-     */
+    @Override
     public IGroup getParentGroup() {
         return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
     }
 }

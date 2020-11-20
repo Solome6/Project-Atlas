@@ -15,11 +15,12 @@ public class FunctionGroup implements IExpressionParentGroup, IFileChildrenGroup
     private final CodeRegion pos;
 
     public FunctionGroup(MethodDeclaration methodDecl, IGroup parent) {
-        this.pos = new CodeRegion(methodDecl.getBegin().get().line, methodDecl.getEnd().get().line,
-            methodDecl.getBegin().get().column, methodDecl.getEnd().get().column);
         this.methodDecl = methodDecl;
         this.parent = parent;
         this.childrenGroups = new ArrayList<>();
+        this.pos = new CodeRegion(methodDecl.getBegin().get().line, methodDecl.getEnd().get().line,
+            methodDecl.getBegin().get().column, methodDecl.getEnd().get().column,
+            this.getPath());
         this.createChildren();
     }
 
@@ -42,26 +43,24 @@ public class FunctionGroup implements IExpressionParentGroup, IFileChildrenGroup
         });
     }
 
+    @Override
     public FileGroup getFileGroup() {
         return (FileGroup) this.parent;
     }
 
-    /**
-     * Returns the children groups nested inside this IGroup.
-     *
-     * @return a list of IGroups.
-     */
+    @Override
     public List<? extends IGroup> getChildrenGroup() {
         return this.childrenGroups;
     }
 
-    /**
-     * Retrieves the parent group that this function belongs to.
-     *
-     * @return the main parent IGroup this IGroup is a child of
-     */
+    @Override
     public IGroup getParentGroup() {
         return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        return this.parent.getPath();
     }
 
 }
