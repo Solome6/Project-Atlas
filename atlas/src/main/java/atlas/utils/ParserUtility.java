@@ -1,8 +1,11 @@
-package atlas;
+package atlas.utils;
 
+import atlas.utils.DirectoryRootTracker;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
@@ -30,7 +33,12 @@ public class ParserUtility {
         return true;
     }
 
-    public static boolean isExternalType(FieldDeclaration fieldDecl) {
+    public static boolean isExternalType(FieldDeclaration fieldDecl, ClassOrInterfaceDeclaration classDecl) {
+        TypeSolver typeSolver = new CombinedTypeSolver(
+            new ReflectionTypeSolver(),
+            new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
+        JavaParserFacade facade = JavaParserFacade.get(typeSolver);
+
         return false;
     }
 

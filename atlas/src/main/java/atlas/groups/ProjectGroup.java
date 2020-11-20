@@ -1,6 +1,6 @@
 package atlas.groups;
 
-import atlas.DirectoryRootTracker;
+import atlas.utils.DirectoryRootTracker;
 import java.util.ArrayList;
 import java.util.List;
 

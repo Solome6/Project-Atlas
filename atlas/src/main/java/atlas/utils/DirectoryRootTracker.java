@@ -1,4 +1,4 @@
-package atlas;
+package atlas.utils;
 
 /**
  * Singleton class to utilize JavaParser and Java Symbol Solver

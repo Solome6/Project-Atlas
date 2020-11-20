@@ -4,7 +4,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import java.util.List;
 import java.util.ArrayList;
 
-public class FieldGroup implements IFileChildrenGroup {
+public final class FieldGroup implements IFileChildrenGroup {
 
     private final IGroup parent;
     private final CodeRegion pos;
@@ -18,7 +18,7 @@ public class FieldGroup implements IFileChildrenGroup {
     }
 
     public FileGroup getFileGroup() {
-        return null;
+        return (FileGroup) this.parent;
     }
 
     public IGroup getParentGroup() {

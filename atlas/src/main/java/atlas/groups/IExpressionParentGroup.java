@@ -1,4 +1,4 @@
-package atlas.groups.expressions;
+package atlas.groups;
 
 import atlas.groups.IFileChildrenGroup;
 

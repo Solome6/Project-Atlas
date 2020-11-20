@@ -1,6 +1,6 @@
 package atlas.groups;
 
-import atlas.ParserUtility;
+import atlas.utils.ParserUtility;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -37,7 +37,7 @@ public class FileGroup implements IGroup {
                     super.visit(c, arg);
                     code = new CodeRegion(0, 0, c.getEnd().get().line, c.getEnd().get().column);
                     for (FieldDeclaration fd : c.getFields()) {
-                        if (ParserUtility.isExternalType(fd)) {
+                        if (ParserUtility.isExternalType(fd, c)) {
                             childrenGroups.add(new FieldGroup(fd, thisFile));
                         }
                     }

@@ -1,17 +1,11 @@
-package atlas.groups.expressions;
+package atlas.groups;
 
-import atlas.DirectoryRootTracker;
-import atlas.groups.FunctionGroup;
 import com.github.javaparser.Position;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import java.util.List;
 
-import atlas.groups.IGroup;
-import atlas.groups.FileGroup;
-
 public class ExpressionGroup implements IExpressionParentGroup {
 
-    private String source;
     private final Position pos;
     private IExpressionParentGroup parent;
     private FunctionGroup pointer;
@@ -19,7 +13,6 @@ public class ExpressionGroup implements IExpressionParentGroup {
     public ExpressionGroup(MethodCallExpr method, IExpressionParentGroup parent) {
         this.parent = parent;
         this.pos = method.getBegin().get();
-        this.source = method.toString();
     }
 
 	/**
