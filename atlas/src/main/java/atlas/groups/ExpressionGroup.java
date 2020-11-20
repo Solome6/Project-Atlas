@@ -26,7 +26,12 @@ public class ExpressionGroup implements IExpressionParentGroup {
     }
 
     private void createChildren(MethodCallExpr method) {
-
+        List<MethodCallExpr> methodCalls = method.findAll(MethodCallExpr.class);
+        if (methodCalls.size() > 1) {
+            for (MethodCallExpr mce : methodCalls) {
+                this.children.add(new ExpressionGroup(mce, this));
+            }
+        }
     }
 
     @Override
@@ -36,8 +41,7 @@ public class ExpressionGroup implements IExpressionParentGroup {
 
     @Override
     public List<? extends IGroup> getChildrenGroup() {
-        // do something
-        return null;
+        return this.children;
     }
 
     @Override
