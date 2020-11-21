@@ -1,5 +1,6 @@
 package atlas.utils;
 
+import com.github.javaparser.Position;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -20,37 +21,35 @@ import java.util.Optional;
 
 public class ParserUtility {
 
-    private final static TypeSolver typeSolver = new CombinedTypeSolver(
-        new ReflectionTypeSolver(),
-        new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
+    private static TypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
 
-    /**
-     * Determines if a method call actually points to an external file.
-     *
-     * @return True if the given MethodCallExpression points to an external file, false otherwise.
-     */
-    public static boolean pointsToExternal(MethodCallExpr methodCallName, List<MethodDeclaration> methods) {
-        for (MethodDeclaration md : methods) {
-            if (md.getNameAsString().equals(methodCallName.getNameAsString())
-                || typeSolver.solveType(methodCallName.getNameAsString()).isJavaLangObject()) {
-                return false;
-            }
-        }
-        return true;
+    public static void setTypeSolver(String path) {
+        typeSolver = new CombinedTypeSolver(
+            new ReflectionTypeSolver(),
+            new JavaParserTypeSolver(path));
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
+        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
     }
 
     public static boolean isExternalType(FieldDeclaration fieldDecl, ClassOrInterfaceDeclaration classDecl) {
-        TypeSolver typeSolver = new CombinedTypeSolver(
-            new ReflectionTypeSolver(),
-            new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
-        JavaParserFacade.get(typeSolver);
-
         return false;
     }
 
+    public static boolean pointsToExternal(MethodCallExpr expr) {
+        JavaParserFacade facade = JavaParserFacade.get(typeSolver);
+
+        SymbolReference<ResolvedMethodDeclaration> methodRef = facade.solve(expr);
+        ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
+
+        Optional<MethodDeclaration> astDecl = methodDecl.toAst();
+
+        return astDecl.isPresent();
+    }
+
     public static MethodDeclaration fromMethodCallExpression(MethodCallExpr mce) {
-        JavaParserFacade f = JavaParserFacade.get(typeSolver);
-        SymbolReference<ResolvedMethodDeclaration> methodRef = f.solve(mce);
+        JavaParserFacade facade = JavaParserFacade.get(typeSolver);
+
+        SymbolReference<ResolvedMethodDeclaration> methodRef = facade.solve(mce);
         ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
 
         Optional<MethodDeclaration> astDecl = methodDecl.toAst();
@@ -67,9 +66,6 @@ public class ParserUtility {
 
     public static String resolveFieldDeclaration(FieldDeclaration fd) {
         String resolvedName = "";
-        TypeSolver typeSolver = new CombinedTypeSolver(
-            new ReflectionTypeSolver(),
-            new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
 
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
         StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);

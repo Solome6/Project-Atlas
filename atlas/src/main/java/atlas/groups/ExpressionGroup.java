@@ -28,8 +28,8 @@ public class ExpressionGroup implements IExpressionParentGroup {
     private void createChildren(MethodCallExpr method) {
         List<MethodCallExpr> methodCalls = method.findAll(MethodCallExpr.class);
         if (methodCalls.size() > 1) {
-            for (MethodCallExpr mce : methodCalls) {
-                this.children.add(new ExpressionGroup(mce, this));
+            for (int i = 1; i < methodCalls.size(); i++) {
+                this.children.add(new ExpressionGroup(methodCalls.get(i), this));
             }
         }
     }

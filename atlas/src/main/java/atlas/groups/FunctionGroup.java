@@ -1,5 +1,6 @@
 package atlas.groups;
 
+import atlas.utils.ParserUtility;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -29,19 +30,25 @@ public class FunctionGroup implements IExpressionParentGroup {
         BlockStmt body = methodDecl.getBody().get();
         List<MethodCallExpr> expressions = new ArrayList<>();
         body.findAll(MethodCallExpr.class).forEach(mce -> {
-            if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin().get().line
-                && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin().get().column) {
-                expressions.add(expressions.size() - 1, mce);
-                expressions.remove(expressions.size() - 1);
-            } else if (
-                mce.getBegin().get().line != expressions.get(expressions.size() - 1).getBegin().get().line) {
+            if (!expressions.isEmpty()) {
+                if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin().get().line
+                    && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin().get().column) {
+                    expressions.add(expressions.size() - 1, mce);
+                    expressions.remove(expressions.size() - 1);
+                } else if (
+                    mce.getBegin().get().line != expressions.get(expressions.size() - 1).getBegin().get().line) {
+                    expressions.add(mce);
+                }
+            } else {
                 expressions.add(mce);
             }
         });
         for (MethodCallExpr expr : expressions) {
-            ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
-            this.children.add(expressionGroup);
-            ProjectGroup.expressionGroups.add(expressionGroup);
+            if (ParserUtility.pointsToExternal(expr)) {
+                ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
+                this.children.add(expressionGroup);
+                ProjectGroup.expressionGroups.add(expressionGroup);
+            }
         }
     }
 
