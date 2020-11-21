@@ -1,23 +1,16 @@
 package atlas.groups;
 
-import atlas.DirectoryRootTracker;
-import java.io.File;
-import java.io.FileNotFoundException;
+import atlas.utils.DirectoryRootTracker;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectGroup extends DirectoryGroup {
 
-    private String path;
-    private List<IGroup> children;
+    private final List<IGroup> children;
 
     public ProjectGroup(String path) throws Exception {
         super(path, null);
-        this.path = path;
-        DirectoryRootTracker rt = DirectoryRootTracker.getInstance(path);
-    }
-
-    @Override
-    public IGroup getParentGroup() {
-        return null;
+        this.children = new ArrayList<>();
+        DirectoryRootTracker.getInstance(path);
     }
 }

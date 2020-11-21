@@ -1,29 +1,40 @@
 package atlas.groups;
 
+import atlas.utils.ParserUtility;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import java.util.List;
 import java.util.ArrayList;
 
-import atlas.groups.expressions.ExpressionGroup;
+public final class FieldGroup implements IFileChildrenGroup {
 
-public class FieldGroup implements IFileMemberGroup {
+    private final IGroup parent;
+    private final CodeRegion pointsFrom;
+    private final String pointsTo;
 
-    public FieldGroup() {
-
+    public FieldGroup(FieldDeclaration fieldDecl, FileGroup parent) {
+        this.parent = parent;
+        this.pointsFrom = new CodeRegion(fieldDecl.getBegin().get().line, fieldDecl.getBegin().get().column,
+            fieldDecl.getEnd().get().line, fieldDecl.getEnd().get().column, this.getPath());
+        pointsTo = ParserUtility.resolveFieldDeclaration(fieldDecl);
     }
 
+    @Override
     public FileGroup getFileGroup() {
-        return null;
+        return (FileGroup) this.parent;
     }
 
+    @Override
     public IGroup getParentGroup() {
-        return null;
+        return this.parent;
     }
 
-    public List<ExpressionGroup> getOccurrences() {
-        return null;
-    }
-
+    @Override
     public List<IGroup> getChildrenGroup() {
-        return new ArrayList<IGroup>();
+        return new ArrayList<>();
+    }
+
+    @Override
+    public String getPath() {
+        return this.parent.getPath();
     }
 }

@@ -1,20 +1,19 @@
 package atlas.groups;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 import java.util.Objects;
 
 public class DirectoryGroup implements IGroup {
 
-    private IGroup parent;
-    private List<IGroup> children;
-
-    public DirectoryGroup(String path) throws Exception {
-        this.parent = null;
-        this.createChildren(path);
-    }
+    private final IGroup parent;
+    private final List<IGroup> children;
+    private final String path;
 
     public DirectoryGroup(String path, IGroup parent) throws Exception {
+        this.path = path;
+        this.children = new ArrayList<>();
         this.parent = parent;
         this.createChildren(path);
     }
@@ -30,19 +29,19 @@ public class DirectoryGroup implements IGroup {
         }
     }
 
-    /**
-     * Returns the children groups nested inside this IGroup.
-     *
-     * @return a list of IGroups.
-     */
+
+    @Override
     public List<IGroup> getChildrenGroup() {
         return this.children;
     }
 
-    /**
-     * @return the main parent IGroup this IGroup is a child of.
-     */
+    @Override
     public IGroup getParentGroup() {
         return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
     }
 }

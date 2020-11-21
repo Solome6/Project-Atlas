@@ -1,40 +1,64 @@
 package atlas.groups;
 
-import atlas.groups.FileGroup;
-import atlas.groups.expressions.ExpressionGroup;
-import atlas.groups.expressions.IExpressionParentGroup;
-import atlas.groups.IFileMemberGroup;
-
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionGroup implements IExpressionParentGroup, IFileMemberGroup {
+public class FunctionGroup implements IExpressionParentGroup, IFileChildrenGroup {
 
-	public FileGroup getFileGroup() {
-		// do something
-		return null;
-	}
+    private final MethodDeclaration methodDecl;
+    private final IGroup parent;
+    private final List<ExpressionGroup> children;
+    private final CodeRegion location;
 
-    public List<ExpressionGroup> getOccurrences() {
-		// do something
-		return null;
-	}
+    public FunctionGroup(MethodDeclaration methodDecl, IGroup parent) {
+        this.methodDecl = methodDecl;
+        this.parent = parent;
+        this.children = new ArrayList<>();
+        this.location = new CodeRegion(methodDecl.getBegin().get().line, methodDecl.getEnd().get().line,
+            methodDecl.getBegin().get().column, methodDecl.getEnd().get().column,
+            this.getPath());
+        this.createChildren();
+    }
 
-	/**
-     * Returns the children groups nested inside this IGroup.
-     *
-     * @Return a list of IGroups.
-     */
+    private void createChildren() {
+        BlockStmt body = methodDecl.getBody().get();
+        List<MethodCallExpr> expressions = new ArrayList<>();
+        body.findAll(MethodCallExpr.class).forEach(mce -> {
+            if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin().get().line
+                && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin().get().column) {
+                expressions.add(expressions.size() - 1, mce);
+                expressions.remove(expressions.size() - 1);
+            } else if (
+                mce.getBegin().get().line != expressions.get(expressions.size() - 1).getBegin().get().line) {
+                expressions.add(mce);
+            }
+        });
+        for (MethodCallExpr expr : expressions) {
+            this.children.add(new ExpressionGroup(expr, this));
+        }
+    }
+
+    @Override
+    public FileGroup getFileGroup() {
+        return (FileGroup) this.parent;
+    }
+
+    @Override
     public List<? extends IGroup> getChildrenGroup() {
-		// do something
-		return null;
-	}
+        return this.children;
+    }
 
-    /**
-     * Returns the main parent IGroup this IGroup is a child of.
-     */
+    @Override
     public IGroup getParentGroup() {
-		// do something
-		return null;
-	}
+        return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        return this.parent.getPath();
+    }
 
 }

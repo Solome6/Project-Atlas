@@ -12,10 +12,17 @@ public interface IGroup {
      *
      * @Return a list of IGroups.
      */
-    public List<? extends IGroup> getChildrenGroup();
+    List<? extends IGroup> getChildrenGroup();
 
     /**
      * Returns the main parent IGroup this IGroup is a child of.
      */
-    public IGroup getParentGroup();
+    IGroup getParentGroup();
+
+    /**
+     * Retrieves the path a group may be in.
+     *
+     * @return The String of the path
+     */
+    String getPath();
 }

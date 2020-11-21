@@ -2,16 +2,26 @@ package atlas.groups;
 
 public class CodeRegion {
 
-	private int startLine;
-	private int endLine;
-	private int startCol;
-	private int endCol;
+	private final int startLine;
+	private final int endLine;
+	private final int startCol;
+	private final int endCol;
+    private final String path;
 
-	public CodeRegion(int startLine, int endLine, int startCol, int endCol) {
+    public CodeRegion() {
+        this.startLine = 0;
+        this.startCol = 0;
+        this.endCol = 0;
+        this.endLine = 0;
+        this.path = "";
+    }
+
+    public CodeRegion(int startLine, int endLine, int startCol, int endCol, String path) {
 		this.startLine = startLine;
 		this.endLine = endLine;
 		this.startCol = startCol;
 		this.endCol = endCol;
+		this.path = path;
 	}
 
 	public int getStartLine() {
@@ -29,5 +39,9 @@ public class CodeRegion {
 	public int getEndCol() {
 		return endCol;
 	}
+
+	public String getPath() {
+        return this.path;
+    }
 
 }
