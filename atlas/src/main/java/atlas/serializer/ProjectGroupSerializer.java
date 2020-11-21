@@ -54,7 +54,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
             jsonGenerator.writeNumberField("lineStart", expressionGroup.getPointsTo().getStartLine());
             jsonGenerator.writeNumberField("lineEnd", expressionGroup.getPointsTo().getEndLine());
             jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsTo().getStartCol());
-            jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsTo().getEndCol());
+            jsonGenerator.writeNumberField("columnEnd", expressionGroup.getPointsTo().getEndCol());
             jsonGenerator.writeEndObject();
 
             jsonGenerator.writeStartObject("to");
@@ -62,7 +62,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
             jsonGenerator.writeNumberField("lineStart", expressionGroup.getPointsFrom().getStartLine());
             jsonGenerator.writeNumberField("lineEnd", expressionGroup.getPointsFrom().getEndLine());
             jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsFrom().getStartCol());
-            jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsFrom().getEndCol());
+            jsonGenerator.writeNumberField("columnEnd", expressionGroup.getPointsFrom().getEndCol());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();

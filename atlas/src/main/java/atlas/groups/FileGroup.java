@@ -14,8 +14,6 @@ import java.util.List;
 public class FileGroup implements IGroup {
 
     private final List<IFileChildrenGroup> children;
-    //private CodeRegion code;
-    //private final String path;
     private final IGroup parent;
     private String source;
 
@@ -23,8 +21,6 @@ public class FileGroup implements IGroup {
      * Basic constructor to create a FileGroup
      */
     public FileGroup(String path, IGroup parent) throws Exception {
-        //this.code = new CodeRegion();
-        //this.path = path;
         this.parent = parent;
         this.children = new ArrayList<>();
         this.createChildren(path);
@@ -41,7 +37,6 @@ public class FileGroup implements IGroup {
                 public void visit(ClassOrInterfaceDeclaration c, Object arg) {
                     super.visit(c, arg);
                     source = c.toString();
-                    //code = new CodeRegion(0, 0, c.getEnd().get().line, c.getEnd().get().column, c.getFullyQualifiedName().get());
                     for (FieldDeclaration fd : c.getFields()) {
                         if (ParserUtility.isExternalType(fd, c)) {
                             children.add(new FieldGroup(fd, thisFile));

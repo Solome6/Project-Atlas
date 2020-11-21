@@ -1,15 +1,22 @@
 package atlas.groups;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.io.File;
 import java.util.Objects;
 
 public class DirectoryGroup implements IGroup {
 
-    private final IGroup parent;
-    private final List<IGroup> children;
-    private final String path;
+    protected final IGroup parent;
+    protected List<IGroup> children;
+    protected final String path;
+
+    public DirectoryGroup(String path) {
+        this.path = path;
+        this.parent = null;
+        this.children = new ArrayList<>();
+    }
 
     public DirectoryGroup(String path, IGroup parent) throws Exception {
         this.path = path;
@@ -18,7 +25,7 @@ public class DirectoryGroup implements IGroup {
         this.createChildren(path);
     }
 
-    private void createChildren(String path) throws Exception {
+    void createChildren(String path) throws Exception {
         File projectDir = new File(path);
         if(!projectDir.isDirectory()) {
             throw new Exception(projectDir + " is not a directory");
