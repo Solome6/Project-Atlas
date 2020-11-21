@@ -6,11 +6,11 @@ import java.util.List;
 
 public class ProjectGroup extends DirectoryGroup {
 
-    private final List<IGroup> children;
+    public static List<FileGroup> fileGroups = new ArrayList<>();
+    public static List<ExpressionGroup> expressionGroups = new ArrayList<>();
 
     public ProjectGroup(String path) throws Exception {
         super(path, null);
-        this.children = new ArrayList<>();
         DirectoryRootTracker.getInstance(path);
     }
 }

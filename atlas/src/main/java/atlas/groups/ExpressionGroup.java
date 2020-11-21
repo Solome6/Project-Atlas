@@ -34,6 +34,14 @@ public class ExpressionGroup implements IExpressionParentGroup {
         }
     }
 
+    public CodeRegion getPointsTo() {
+        return this.pointsTo;
+    }
+
+    public CodeRegion getPointsFrom() {
+        return this.pointsFrom;
+    }
+
     @Override
     public FileGroup getFileGroup() {
         return this.parent.getFileGroup();

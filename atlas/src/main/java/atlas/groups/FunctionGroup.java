@@ -6,20 +6,22 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionGroup implements IExpressionParentGroup, IFileChildrenGroup {
+public class FunctionGroup implements IExpressionParentGroup {
 
     private final MethodDeclaration methodDecl;
     private final IGroup parent;
     private final List<ExpressionGroup> children;
-    private final CodeRegion location;
+    //private final CodeRegion location;
 
     public FunctionGroup(MethodDeclaration methodDecl, IGroup parent) {
         this.methodDecl = methodDecl;
         this.parent = parent;
         this.children = new ArrayList<>();
+        /*
         this.location = new CodeRegion(methodDecl.getBegin().get().line, methodDecl.getEnd().get().line,
             methodDecl.getBegin().get().column, methodDecl.getEnd().get().column,
             this.getPath());
+        */
         this.createChildren();
     }
 
@@ -37,7 +39,9 @@ public class FunctionGroup implements IExpressionParentGroup, IFileChildrenGroup
             }
         });
         for (MethodCallExpr expr : expressions) {
-            this.children.add(new ExpressionGroup(expr, this));
+            ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
+            this.children.add(expressionGroup);
+            ProjectGroup.expressionGroups.add(expressionGroup);
         }
     }
 

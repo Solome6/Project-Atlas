@@ -20,11 +20,16 @@ public class DirectoryGroup implements IGroup {
 
     private void createChildren(String path) throws Exception {
         File projectDir = new File(path);
+        if(!projectDir.isDirectory()) {
+            throw new Exception(projectDir + " is not a directory");
+        }
         for (File f : Objects.requireNonNull(projectDir.listFiles())) {
             if (f.isDirectory()) {
                 children.add(new DirectoryGroup(f.getAbsolutePath(), this));
             } else if (f.getAbsolutePath().endsWith(".java")) {
-                children.add(new FileGroup(f.getAbsolutePath(), this));
+                IGroup fileGroup = new FileGroup(f.getAbsolutePath(), this);
+                children.add(fileGroup);
+                ProjectGroup.fileGroups.add((FileGroup) children.get(children.size() - 1));
             }
         }
     }

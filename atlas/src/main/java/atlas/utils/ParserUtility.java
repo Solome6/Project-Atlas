@@ -1,6 +1,5 @@
 package atlas.utils;
 
-import atlas.utils.DirectoryRootTracker;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -44,7 +43,7 @@ public class ParserUtility {
         TypeSolver typeSolver = new CombinedTypeSolver(
             new ReflectionTypeSolver(),
             new JavaParserTypeSolver(DirectoryRootTracker.rootDir));
-        JavaParserFacade facade = JavaParserFacade.get(typeSolver);
+        JavaParserFacade.get(typeSolver);
 
         return false;
     }
