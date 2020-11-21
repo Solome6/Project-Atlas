@@ -18,11 +18,12 @@ public class ExpressionGroup implements IExpressionParentGroup {
         this.children = new ArrayList<>();
         this.createChildren(method);
         this.pointsFrom = new CodeRegion(method.getBegin().get().line, method.getEnd().get().line,
-            method.getBegin().get().column, method.getEnd().get().column, this.getPath());
+            method.getBegin().get().column, method.getEnd().get().column, this.getPackage());
 
         MethodDeclaration dest = ParserUtility.fromMethodCallExpression(method);
         this.pointsTo = new CodeRegion(dest.getBegin().get().line, dest.getEnd().get().line,
-            dest.getBegin().get().column, dest.getEnd().get().column, ParserUtility.getCallSignature(method));
+            dest.getBegin().get().column, dest.getEnd().get().column,
+            this.formatSignature(ParserUtility.getCallSignature(method)));
     }
 
     private void createChildren(MethodCallExpr method) {
@@ -32,6 +33,18 @@ public class ExpressionGroup implements IExpressionParentGroup {
                 this.children.add(new ExpressionGroup(methodCalls.get(i), this));
             }
         }
+    }
+
+    private String formatSignature(String sig) {
+        int finalPeriod = 0;
+        for (int i = 0; i < sig.length(); i++) {
+            if (sig.charAt(i) == '.') {
+                finalPeriod = i;
+            } else if (sig.charAt(i) == '(') {
+                break;
+            }
+        }
+        return sig.substring(0, finalPeriod);
     }
 
     public CodeRegion getPointsTo() {
@@ -58,7 +71,12 @@ public class ExpressionGroup implements IExpressionParentGroup {
     }
 
     @Override
-    public String getPath() {
-        return this.parent.getPath();
+    public void setPackage(String pckg) {
+        this.parent.setPackage(pckg);
+    }
+
+    @Override
+    public String getPackage() {
+        return this.parent.getPackage();
     }
 }

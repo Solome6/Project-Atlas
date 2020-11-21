@@ -26,7 +26,7 @@ public class ProjectGroup extends DirectoryGroup {
     }
 
     @Override
-    public String getPath() {
-        return super.path;
+    public String getPackage() {
+        return super.getPackage();
     }
 }

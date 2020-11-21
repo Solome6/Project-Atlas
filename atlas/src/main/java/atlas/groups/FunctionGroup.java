@@ -68,8 +68,13 @@ public class FunctionGroup implements IExpressionParentGroup {
     }
 
     @Override
-    public String getPath() {
-        return this.parent.getPath();
+    public void setPackage(String pckg) {
+        this.parent.setPackage(pckg);
+    }
+
+    @Override
+    public String getPackage() {
+        return this.parent.getPackage();
     }
 
 }

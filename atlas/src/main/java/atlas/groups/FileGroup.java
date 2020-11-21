@@ -16,6 +16,7 @@ public class FileGroup implements IGroup {
     private final List<IFileChildrenGroup> children;
     private final IGroup parent;
     private String source;
+    private String pckg;
 
     /**
      * Basic constructor to create a FileGroup
@@ -36,6 +37,8 @@ public class FileGroup implements IGroup {
                 @Override
                 public void visit(ClassOrInterfaceDeclaration c, Object arg) {
                     super.visit(c, arg);
+                    setPackage(c.getFullyQualifiedName().get());
+                    setParentPackage(c.getFullyQualifiedName().get());
                     source = c.toString();
                     for (FieldDeclaration fd : c.getFields()) {
                         if (ParserUtility.isExternalType(fd, c)) {
@@ -56,6 +59,15 @@ public class FileGroup implements IGroup {
         return this.source;
     }
 
+    private void setParentPackage(String pckg) {
+        int finalPeriod = 0;
+        for (int i = 0; i < pckg.length(); i++) {
+            if (pckg.charAt(i) == '.') {
+                finalPeriod = i;
+            }
+        }
+        this.parent.setPackage(pckg.substring(0, finalPeriod));
+    }
 
     @Override
     public List<? extends IGroup> getChildrenGroup() {
@@ -69,8 +81,13 @@ public class FileGroup implements IGroup {
     }
 
     @Override
-    public String getPath() {
-        return this.parent.getPath();
+    public void setPackage(String pckg) {
+        this.pckg = pckg;
+    }
+
+    @Override
+    public String getPackage() {
+        return this.pckg;
     }
 
 }

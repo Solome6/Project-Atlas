@@ -38,8 +38,8 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
     private void writeFileBoxArray(JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart("fileBoxes");
         for(FileGroup fileGroup : ProjectGroup.fileGroups) {
-            jsonGenerator.writeStartObject(fileGroup.getPath());
-            jsonGenerator.writeStringField("pathName", fileGroup.getPath());
+            jsonGenerator.writeStartObject(fileGroup.getPackage());
+            jsonGenerator.writeStringField("pathName", fileGroup.getPackage());
             jsonGenerator.writeStringField("source", fileGroup.getSource());
             jsonGenerator.writeEndObject();
         }

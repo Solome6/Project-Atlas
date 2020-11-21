@@ -20,9 +20,14 @@ public interface IGroup {
     IGroup getParentGroup();
 
     /**
+     * Sets the package location of this FileGroup.
+     */
+    void setPackage(String pckg);
+
+    /**
      * Retrieves the path a group may be in.
      *
      * @return The String of the path
      */
-    String getPath();
+    String getPackage();
 }

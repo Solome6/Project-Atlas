@@ -10,16 +10,14 @@ public class DirectoryGroup implements IGroup {
 
     protected final IGroup parent;
     protected List<IGroup> children;
-    protected final String path;
+    protected String pckg;
 
     public DirectoryGroup(String path) {
-        this.path = path;
         this.parent = null;
         this.children = new ArrayList<>();
     }
 
     public DirectoryGroup(String path, IGroup parent) throws Exception {
-        this.path = path;
         this.children = new ArrayList<>();
         this.parent = parent;
         this.createChildren(path);
@@ -53,7 +51,12 @@ public class DirectoryGroup implements IGroup {
     }
 
     @Override
-    public String getPath() {
-        return this.path;
+    public void setPackage(String pckg) {
+        this.pckg = pckg;
+    }
+
+    @Override
+    public String getPackage() {
+        return this.pckg;
     }
 }
