@@ -30,7 +30,6 @@ public final class App {
         mapper.registerModule(module);
 
         args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-
         if (args != null && args.length > 0) {
             try {
                 String projectRoot = args[0];
