@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import atlas.groups.ProjectGroup;
 import atlas.serializer.ProjectGroupSerializer;
-import java.util.Arrays;
 
 /**
  * Hello world!
@@ -29,19 +28,32 @@ public final class App {
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
 
-        args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-
+        // args = new String[]{"D:\\Programming\\Project-Atlas\\",
+        // "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
         if (args != null && args.length > 0) {
             try {
-                String projectRoot = args[0];
-                String projectPath = args[1];
+                String projectRoot;
+                String projectPath;
+                if (args.length == 1) {
+                    String arg = args[0];
+                    args = arg.split(" ");
+                }
+                projectRoot = args[0];
+                projectPath = args[1];
+
                 ProjectGroup projectGroup = new ProjectGroup(projectRoot, projectPath);
-                FileWriter writer = new FileWriter(new File("atlas.json"));
+                File f = new File("atlas.json");
+                f.setWritable(true);
+                f.setReadable(true);
+                FileWriter writer = new FileWriter(f);
                 writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
                 writer.close();
                 System.out.println("--------------------------------------------------------------!");
             } catch (Exception e) {
+                System.out.println("Exception:");
                 e.printStackTrace();
+                System.out.println(e.getMessage());
+                System.out.println(e.getCause());
             }
         }
     }
