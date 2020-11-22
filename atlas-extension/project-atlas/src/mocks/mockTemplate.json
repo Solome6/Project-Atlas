@@ -1,0 +1,60 @@
+{
+    "directories": [
+        "folder1",
+        "folder1/sub1",
+        "folder1/sub2",
+        "folder1/sub1/src",
+        "folder1/sub2/test"
+    ],
+    "fileBoxes": {
+        "path/to/file1": {
+            // FileBox Object
+            "pathName": "",
+            "source": "",
+            "directories": ""
+            // ...
+        },
+        "path/to/file2": {
+            // FileBox Object
+        },
+        "path/to/file3": {
+            // FileBox Object
+        }
+        // and so on...
+    },
+    "arrows": [
+        { // arrow object
+            "from": {
+                "path": "path/to/file1",
+                "lineStart": 1,
+                "lineEnd": 2, //exclusive
+                "columnStart": 0,
+                "columnEnd": 50
+            },
+            "to": {
+                "path": "path/to/file2",
+                "lineStart": 5,
+                "lineEnd": 6,
+                "columnStart": 0,
+                "columnEnd": 40
+            }
+        },
+        { // arrow object
+            "from": {
+                "path": "path/to/file1",
+                "lineStart": 2,
+                "lineEnd": 3, //exclusive
+                "columnStart": 0,
+                "columnEnd": 10
+            },
+            "to": {
+                "path": "path/to/file3",
+                "lineStart": 10,
+                "lineEnd": 11,
+                "columnStart": 0,
+                "columnEnd": 30
+            }
+        }
+        // and so on...
+    ]
+}

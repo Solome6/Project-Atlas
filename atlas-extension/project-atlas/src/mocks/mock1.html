@@ -1,0 +1,314 @@
+<html lang="en/US">
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.16/svg.min.js"
+        integrity="sha512-p3Tp2zn+wApBreZCgRkmMwnfpN8MUPXzzOihXx7iGYXqE7t6m9drY8HeyMeeFuDWiTFKrGUrq3jpbT0vX6zY/Q=="
+        crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --bgColor: rgb(40, 44, 52);
+            --bgColorDarker: rgb(27, 29, 34);
+            --textColor: rgb(171, 178, 191);
+        }
+
+        html,
+        body {
+            background-color: var(--bgColor);
+        }
+
+        div.scrollBox {
+            overflow: scroll;
+            display: block;
+            height: 150px;
+            transition: background 1s ease-in-out;
+            box-sizing: border-box;
+            background: rgb(108, 108, 121);
+            scrollbar-color: rgb(205, 205, 205);
+        }
+
+        svg.fileBox {
+            outline: 1px solid white;
+            transform: scale(1.05);
+        }
+
+        g.line rect.line-indicator {
+            width: 100%;
+            height: 25px;
+            fill: rgb(131, 131, 142);
+            transition: all 0.25s ease-in-out;
+        }
+
+        g.line rect.line-number-background {
+            width: 25px;
+            height: 25px;
+            fill: rgb(111, 111, 121);
+        }
+
+        g.line:hover rect.line-indicator {
+            fill: rgb(165, 165, 179);
+        }
+
+        svg {
+            overflow: visible;
+        }
+
+        #translateSVG {
+            transform: translate(50%, 50%);
+        }
+
+        .ui {
+            position: absolute;
+            z-index: 2;
+        }
+
+        #refreshAtlas.ui {
+            --margin: 15px;
+            top: var(--margin);
+            right: var(--margin);
+
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 1.1rem;
+            color: var(--textColor);
+
+            background: var(--bgColor);
+            background-image: linear-gradient(to bottom, rgb(0, 0, 0, 0), rgb(0, 0, 0, 0.33));
+            width: 10rem;
+            height: 2rem;
+            outline: white 1px solid;
+        }
+
+        #refreshAtlas.ui:hover {
+            filter: brightness(1.15);
+        }
+
+        #refreshAtlas.ui:active {
+            filter: brightness(0.87);
+        }
+
+        #cameraValues.ui {
+            bottom: 0;
+            right: 0;
+
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 0.75rem;
+            color: var(--textColor);
+
+            background: rgba(255, 255, 255, 0.25);
+            display: flex;
+            height: 1rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        #cameraValues>* {
+            margin: 0 4px 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="refreshAtlas" class="ui">Refresh Atlas</button>
+    <div class="ui" id="cameraValues">
+        X: <span id="x-coord">0</span>
+        Y: <span id="y-coord">0</span>
+    </div>
+    <svg id="globalSVG" width="100%" height="100%">
+        <svg id="translateSVG">
+            <g id="scaleGroup">
+                <svg class="fileBox" width="400px" height="200px">
+                    <svg class="title" x="0" y="0" height="40">
+                        <rect width="100%" height="100%" fill="red"></rect>
+                        <text font-size="30px" fill="white" text-anchor="middle" x="50%" y="30">
+                            <tspan>Person.java</tspan>
+                        </text>
+                    </svg>
+                    <foreignobject y="20%" width="100%" height="80%">
+                        <div class="scrollBox">
+                            <svg class="classSourceCodeBox" width="400px" height="500px">
+                                <g class="line">
+                                    <rect class="line-indicator"></rect>
+                                    <rect class="line-number-background"></rect>
+                                    <text y="20" font-size="20px" fill="black" font-family="monospace">1.</text>
+                                    <text x="30" y="20" font-size="20px" fill="black" font-family="monospace">public
+                                        class
+                                        Person {</text>
+                                </g>
+                                <g class="line">
+                                    <rect x="0" y="25" class="line-indicator"></rect>
+                                    <rect x="0" y="25" class="line-number-background"></rect>
+                                    <text y="45" font-size="20px" fill="black" font-family="monospace">2.</text>
+                                    <text x="30" y="45" font-size="20px" fill="black" font-family="monospace">private
+                                        int
+                                        age;</text>
+                                </g>
+                                <g class="line">
+                                    <rect x="0" y="260" class="line-indicator"></rect>
+                                    <rect x="0" y="260" class="line-number-background"></rect>
+                                    <text y="280" font-size="20px" fill="black" font-family="monospace">45.</text>
+                                    <text x="40" y="280" font-size="20px" fill="black" font-family="monospace">//
+                                        code
+                                        and
+                                        stuff</text>
+                                </g>
+                                <g class="line">
+                                    <rect x="0" y="140" class="line-indicator"></rect>
+                                    <rect x="0" y="140" class="line-number-background"></rect>
+                                    <text y="160" font-size="20px" fill="black" font-family="monospace">1.</text>
+                                    <text x="30" y="160" font-size="20px" fill="black" font-family="monospace">public
+                                        class
+                                        Person {</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </foreignobject>
+                </svg>
+                <foreignobject x="700" y="20" width="100%" height="100%">
+                    <div class="scrollBox">
+                        <svg class="classBox" width="300px" height="500px">
+                            <text font-size="30px" fill="black" x="20" y="55" font-family="monospace">Hello
+                                World</text>
+                            <text font-size="30px" fill="black" x="20" y="90" font-family="monospace">Test
+                                SVG</text>
+                            <text font-size="30px" fill="black" x="20" y="130" font-family="monospace">Test
+                                SVG</text>
+                            <text font-size="30px" fill="black" x="20" y="170" font-family="monospace">Test
+                                SVG</text>
+                            <text font-size="30px" fill="black" x="20" y="210" font-family="monospace">Test
+                                SVG</text>
+                            <text font-size="30px" fill="black" x="20" y="250" font-family="monospace">Test
+                                SVG</text>
+                        </svg>
+                    </div>
+                </foreignobject>
+            </g>
+        </svg>
+    </svg>
+
+    <script>
+        "use strict";
+        var Mouse;
+        (function (Mouse) {
+            Mouse[Mouse["SingleClick"] = 1] = "SingleClick";
+            Mouse[Mouse["DoubleClick"] = 2] = "DoubleClick";
+            Mouse[Mouse["TripleClick"] = 3] = "TripleClick";
+        })(Mouse || (Mouse = {}));
+        const MIN_SCALE = 0.05;
+        const MAX_SCALE = 1.5;
+        const SCALE_MULTIPLIER = 1.05;
+        const camera = initializeCamera();
+        let panning = true;
+        const globalSVG = document.getElementById("globalSVG");
+        const translateSVG = document.getElementById("translateSVG");
+        const scaleGroup = document.getElementById("scaleGroup");
+        const xCoords = document.getElementById("x-coord");
+        const yCoords = document.getElementById("y-coord");
+        function initializeCamera() {
+            return {
+                x: 0,
+                y: 0,
+                scale: 0.5,
+            };
+        }
+        function applyCamera(camera) {
+            translateSVG.setAttribute("x", String(camera.x));
+            translateSVG.setAttribute("y", String(camera.y));
+            xCoords.innerText = String(-camera.x);
+            yCoords.innerText = String(camera.y);
+            scaleGroup.setAttribute("transform", `scale(${camera.scale})`);
+        }
+        function translateCamera(dx, dy) {
+            camera.x += dx;
+            camera.y += dy;
+        }
+        function clamp(min, value, max) {
+            return Math.max(min, Math.min(value, max));
+        }
+        const mouseTranslationHandler = (mouseEvent) => {
+            panning = true;
+            translateCamera(mouseEvent.movementX, mouseEvent.movementY);
+            applyCamera(camera);
+        };
+        const wheelPanHandler = (wheelEvent) => {
+            panning = true;
+            translateCamera(-wheelEvent.deltaX, -wheelEvent.deltaY);
+            applyCamera(camera);
+        };
+        const wheelZoomHandler = (wheelEvent) => {
+            let factor;
+            if (wheelEvent.deltaY < 0) {
+                factor = SCALE_MULTIPLIER;
+            }
+            else {
+                factor = 1 / SCALE_MULTIPLIER;
+            }
+            const newScale = clamp(MIN_SCALE, camera.scale * factor, MAX_SCALE);
+            if (newScale !== camera.scale) {
+                camera.scale = newScale;
+                const relativeShift = factor - 1;
+                const dx = (wheelEvent.clientX - camera.x) * relativeShift;
+                const dy = (wheelEvent.clientY - camera.y) * relativeShift;
+                camera.x -= dx;
+                camera.y -= dy;
+                applyCamera(camera);
+            }
+        };
+        const stopPanningHandler = () => {
+            panning = false;
+        };
+        window.addEventListener("mouseleave", () => {
+            globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
+        });
+        globalSVG.addEventListener("mousedown", () => {
+            globalSVG.addEventListener("mousemove", mouseTranslationHandler);
+        });
+        globalSVG.addEventListener("mouseup", () => {
+            globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
+        });
+        globalSVG.addEventListener("wheel", (wheelEvent) => {
+            wheelEvent.preventDefault();
+            if (wheelEvent.ctrlKey) {
+                wheelZoomHandler(wheelEvent);
+            }
+            else {
+                wheelPanHandler(wheelEvent);
+            }
+        });
+        globalSVG.addEventListener("click", (mouseEvent) => {
+            switch (mouseEvent.detail) {
+                case Mouse.DoubleClick: {
+                    camera.x = 0;
+                    camera.y = 0;
+                    applyCamera(camera);
+                    break;
+                }
+                case Mouse.TripleClick: {
+                    camera.x = 0;
+                    camera.y = 0;
+                    camera.scale = 1;
+                    applyCamera(camera);
+                    break;
+                }
+            }
+        });
+        document.querySelectorAll("svg.fileBox").forEach((svgFileBox) => {
+            const fileBox = svgFileBox;
+            fileBox.addEventListener("mousedown", (mouseEvent) => {
+                mouseEvent.stopPropagation();
+            });
+        });
+        document.querySelectorAll("div.scrollBox").forEach((svgFileBox) => {
+            const fileBox = svgFileBox;
+            fileBox.addEventListener("wheel", (wheelEvent) => {
+                const zooming = wheelEvent.ctrlKey;
+                if (!zooming && !panning) {
+                    wheelEvent.stopPropagation();
+                }
+            });
+            fileBox.addEventListener("mousedown", stopPanningHandler);
+            fileBox.addEventListener("mousemove", stopPanningHandler);
+        });
+        applyCamera(camera);
+    </script>
+</body>
+
+</html>

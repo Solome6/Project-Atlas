@@ -1,11 +1,39 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as svgjs from "@svgdotjs/svg.js";
 import * as fs from "fs";
 import * as path from "path";
-// @ts-ignore
-import { createSVGWindow } from "svgdom";
 import * as vscode from "vscode";
+import { ArrowSVG, createArrow, createFileBox, FileBoxSVG } from "./atlasComponents";
+import { Message, MessageType } from "./messaging";
+import { convertToProject } from "./utilities";
+
+export interface CodeBlock {
+    path: string;
+    lineStart: number;
+    lineEnd: number;
+    columnStart: number;
+    columnEnd: number;
+}
+
+export interface FileBox {
+    pathName: string;
+    source: string;
+    fileName: string;
+}
+
+export interface Arrow {
+    from: CodeBlock;
+    to: CodeBlock;
+}
+
+export interface ProjectJSON {
+    fileBoxes: FileBox[];
+    arrows: Arrow[];
+}
+export interface Project {
+    fileBoxes: Map<string, FileBox>;
+    arrows: Arrow[];
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -28,11 +56,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("project-atlas.openAtlas", () => {
+        vscode.commands.registerCommand("project-atlas.openAtlas", async () => {
             const panel = vscode.window.createWebviewPanel(
                 "atlas",
                 `${vscode.workspace.name ? `${vscode.workspace.name} ` : ""}Atlas`,
-                vscode.ViewColumn.Beside,
+                vscode.ViewColumn.Two,
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true,
@@ -40,62 +68,299 @@ export function activate(context: vscode.ExtensionContext) {
                 },
             );
 
-            // TODO: TEMPORARY
-            !fs.existsSync(path.resolve(__dirname, "./mocks")) &&
-                fs.mkdirSync(path.resolve(__dirname, "./mocks"));
-            fs.writeFileSync(path.resolve(__dirname, "./mocks/mock1.json"), generateRandomJSON());
+            // console.log("Starting process...");
+            // const arg1 = path.resolve(__dirname, "../../../");
+            // const arg2 = path.resolve(__dirname, "../../../mocks/example_project/src");
+            // const atlasProcess = spawn("mvn", [
+            //     "-f",
+            //     path.resolve(__dirname, "../../../atlas/pom.xml"),
+            //     "compile",
+            //     "exec:java",
+            //     // `-Dexec.mainClass="${path.resolve(__dirname, "../../../atlas/src/main/java/atlas/App.java")}"`,
+            //     `-Dexec.args=\"${arg1} ${arg2}\"`,
+            // ], {});
 
-            // TODO: TEMPORARY
-            fs.readFile(path.resolve(__dirname, "./mocks/mock1.json"), (err, data) => {
-                if (err) {
-                    console.error(err);
-                } else {
-                    console.log(data.toString());
-                    const jsonContents = JSON.parse(data.toString());
-                    console.log(jsonContents);
-                    panel.webview.html = geAtlasContent(jsonContents.data);
-                }
-            });
+            // atlasProcess.stdout.on("data", (data) => {
+            //     console.log(`${data}`);
+            // });
+
+            // atlasProcess.on("close", async (code) => {
+            //     console.log("Closing process...");
+            //     if (code === 0) {
+            //         const projectJSONString = await getFileContent(
+            //             "../../../atlas/atlas.json",
+            //             "Project not found",
+            //         );
+            //         const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
+            //         panel.webview.onDidReceiveMessage((message) =>
+            //             atlasMessageHandler(panel, message),
+            //         );
+            //         panel.webview.html = await getAtlasContent(projectJSON);
+            //         console.log("Something went wrong on the frontend");
+            //     } else {
+            //         console.log("Something went wrong, code:", code);
+            //     }
+            // });
+
+            panel.webview.onDidReceiveMessage((message) => atlasMessageHandler(panel, message));
+            panel.webview.html = await getAtlasContent({} as ProjectJSON);
         }),
     );
 }
 
-function geAtlasContent(message: string): string {
-    const window = createSVGWindow();
-    const document = window.document;
-    // @ts-ignore
-    svgjs.registerWindow(window, document);
+async function atlasMessageHandler(panel: vscode.WebviewPanel, message: Message) {
+    console.log("Message Recieved!");
+    switch (message.type) {
+        case MessageType.Refresh: {
+            panel.webview.html = await getAtlasContent({} as ProjectJSON);
+            // const atlasProcess = spawn("mvn", [
+            //     "-f",
+            //     "../../../atlas/pom.xml",
+            //     "compile",
+            //     "exec:java",
+            //     '-Dexec.mainClass="atlas.App"',
+            //     '-Dexec.args="path/of/root"',
+            // ]);
 
-    const svgNode = document.documentElement;
-    const svg = svgjs.SVG(svgNode) as svgjs.Svg;
-    svg.size(500, 1000);
-
-    // TODO: TEMPORARY
-    // Create svg children
-    svg.text(message)
-        .move(20, 35)
-        .font({
-            family: "sans-serif",
-            size: 30,
-        })
-        .fill("red");
-    svg.rect(100, 100).move(250, 200).fill("#f06");
-
-    const svgString = svg.svg();
-    console.log(svgString);
-    return svgString;
+            // atlasProcess.on("close", async (code) => {
+            //     if (code === 0) {
+            //         const projectJSONString = await getFileContent(
+            //             "../../../atlas/atlas.json",
+            //             "Project not found",
+            //         );
+            //         const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
+            //         panel.webview.html = await getAtlasContent(projectJSON);
+            //     }
+            // });
+        }
+    }
 }
 
-// TODO: TEMPORARY
-function generateRandomJSON() {
-    let result = '{"data":"';
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    const wordLength = 11 * Math.random();
-    for (var i = 0; i < wordLength; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result + '"}';
+async function getAtlasContent(projectJSON: ProjectJSON) {
+    return `<html>
+    <head>
+        <style>
+            :root {
+                --bgColor: var(--vscode-editor-background);
+                --textColor: var(--vscode-editor-foreground);
+                --textSelectionBgColor: var(--vscode-editor-selectionBackground);
+                --textSelectionFgColor: var(--vscode-editor-selectionForeground);
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                background-color: var(--bgColor);
+            }
+
+            div.classBox {
+                margin: 10px;
+                overflow: scroll;
+                display: block;
+                width: 300px;
+                height: 150px;
+                border: 2px white solid;
+                border-radius: 5px;
+                transition: all 1s;
+                box-sizing: content-box;
+                box-sizing: border-box;
+                background: skyblue;
+                scrollbar-color: rgb(205, 205, 205);
+            }
+
+            foreignObject {
+                position: relative;
+                z-index: 0;
+            }
+
+            .scrollBoxBackground {
+                position: relative;
+                z-index: -1;
+            }
+
+            div.classBox:hover {
+                border-width: 5px;
+                transform: scale(1.05);
+            }
+
+            g.line rect.line-indicator {
+                width: 100%;
+                fill: rgb(131, 131, 142);
+                transition: all 0.25s ease-in-out;
+                position: relative;
+                z-index: -1;
+            }
+
+            g.line {
+                position: relative;
+                z-index: 1;
+            }
+
+            g.line * {
+                position: relative;
+                z-index: 1;
+            }
+
+            g.line rect.line-number-background {
+                fill: rgb(111, 111, 121);
+                position: relative;
+                z-index: 1;
+            }
+
+            g.line:hover rect.line-indicator {
+                fill: rgb(150, 150, 163);
+            }
+
+            g.line text {
+                fill: var(--textColor);
+                z-index: 2;
+            }
+
+            svg {
+                overflow: visible;
+            }
+
+            .ui {
+                position: absolute;
+                z-index: 100;
+            }
+
+            .arrow {
+                position: relative;
+                z-index: 10;
+            }
+
+            #refreshAtlasButton.ui {
+                --margin: 15px;
+                top: var(--margin);
+                right: var(--margin);
+
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 1.1rem;
+                color: var(--textColor);
+
+                background: var(--bgColor);
+                background-image: linear-gradient(to bottom, transparent, rgb(0, 0, 0, 0.33));
+                width: 10rem;
+                height: 2rem;
+                outline: white 1px solid;
+            }
+
+            #refreshAtlas.ui:hover {
+                filter: brightness(1.15);
+            }
+
+            #refreshAtlas.ui:active {
+                filter: brightness(0.87);
+            }
+
+            #cameraIndicator.ui {
+                bottom: 0;
+                right: 0;
+
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 0.75rem;
+                color: var(--textSelectionFgColor);
+
+                background: var(--textSelectionBgColor);
+                display: flex;
+                height: 1rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+            }
+
+            #cameraIndicator > * {
+                margin: 0 4px 0 2px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <button class="ui" id="refreshAtlasButton">Refresh Atlas</button>
+        <div class="ui" id="cameraIndicator">
+            X: <span id="x-coord">0</span>
+            Y: <span id="y-coord">0</span>
+        </div>
+        <svg id="globalSVG" width="100%" height="100%">
+            <svg id="translateSVG">
+                <g id="scaleGroup">
+                    ${await generateContentSVG(projectJSON)}
+                </g>
+            </svg>
+        </svg>
+        <script>
+            ${await getAtlasScripts()}
+        </script>
+    </body>
+    </html>`;
+}
+
+async function getAtlasScripts() {
+    return (await Promise.all([getMouseControls(), getUIControls()])).join("");
+}
+/**
+ * Does not do anything yet because cannot find how to export css.
+ */
+async function getAtlasStyles() {
+    return (await Promise.all([getSVGStyles()])).join("");
+}
+
+async function getMouseControls() {
+    return await getFileContent("./scripts/mouseControls.js", "Cannot find mouse scripts");
+}
+async function getUIControls() {
+    return await getFileContent("./scripts/uiControls.js", "Cannot find UI scripts");
+}
+async function getSVGStyles() {
+    return await getFileContent("./svgStyles.css", "Cannot find SVG styles");
+}
+
+async function getFileContent(relativePath: string, logError?: string) {
+    return await new Promise<string>((resolve, reject) => {
+        fs.readFile(path.resolve(__dirname, relativePath), (err, data) => {
+            if (err) {
+                vscode.window.showErrorMessage(
+                    "Something went wrong. Try reinstalling Project Atlas",
+                );
+                logError && console.error(logError);
+                reject(err);
+            } else {
+                resolve(data.toString());
+            }
+        });
+    });
+}
+
+async function generateContentSVG(projectJson: ProjectJSON) {
+    // TODO: TEMPORARY
+    projectJson = JSON.parse(await getFileContent("./mocks/mock1.json")) as ProjectJSON;
+
+    const { fileBoxes, arrows }: Project = convertToProject(projectJson);
+    const fileBoxesSVGMap: Map<string, FileBoxSVG> = new Map();
+
+    let x = 10;
+    let y = 10;
+    fileBoxes.forEach((fileBox) => {
+        fileBoxesSVGMap.set(
+            fileBox.pathName,
+            createFileBox({
+                pathName: fileBox.pathName,
+                location: { x, y },
+                content: fileBox.source,
+                shortName: fileBox.pathName.slice(fileBox.pathName.lastIndexOf(".")),
+            }),
+        );
+        x += 700; // TODO: TEMPORARY
+        y += 200; // TODO: TEMPORARY
+    });
+
+    const arrowsSVG: ArrowSVG[] = [];
+    arrows.forEach((arrow) => {
+        arrowsSVG.push(createArrow(arrow, fileBoxesSVGMap));
+    });
+
+    return [...fileBoxesSVGMap.values(), ...arrowsSVG].map((svg) => svg.svg()).join("");
 }
 
 // this method is called when your extension is deactivated
