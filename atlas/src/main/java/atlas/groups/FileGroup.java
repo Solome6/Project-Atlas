@@ -8,6 +8,9 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,20 @@ public class FileGroup implements IGroup {
     public FileGroup(String path, IGroup parent) throws Exception {
         this.parent = parent;
         this.children = new ArrayList<>();
+        this.setSource(path);
         this.createChildren(path);
+    }
+
+    private void setSource(String path) {
+        try {
+            StringBuilder builder = new StringBuilder();
+            for (String s : Files.readAllLines(Paths.get(path))) {
+                builder.append(s).append("\n");
+            }
+            source = builder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createChildren(String path) throws Exception {
@@ -39,7 +55,6 @@ public class FileGroup implements IGroup {
                     super.visit(c, arg);
                     setPackage(c.getFullyQualifiedName().get());
                     setParentPackage(c.getFullyQualifiedName().get());
-                    source = c.toString();
                     for (FieldDeclaration fd : c.getFields()) {
                         if (ParserUtility.isExternalType(fd, c)) {
                             children.add(new FieldGroup(fd, thisFile));

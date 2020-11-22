@@ -30,7 +30,6 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
             this.writeArrowArray(jsonGenerator);
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -52,17 +51,18 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeObjectFieldStart("from");
             jsonGenerator.writeStringField("path", expressionGroup.getPointsFrom().getPath());
-            jsonGenerator.writeNumberField("lineStart", expressionGroup.getPointsTo().getStartLine());
-            jsonGenerator.writeNumberField("lineEnd", expressionGroup.getPointsTo().getEndLine());
-            jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsTo().getStartCol());
-            jsonGenerator.writeNumberField("columnEnd", expressionGroup.getPointsTo().getEndCol());
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeObjectFieldStart("to");
-            jsonGenerator.writeStringField("path", expressionGroup.getPointsTo().getPath());
             jsonGenerator.writeNumberField("lineStart", expressionGroup.getPointsFrom().getStartLine());
             jsonGenerator.writeNumberField("lineEnd", expressionGroup.getPointsFrom().getEndLine());
             jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsFrom().getStartCol());
             jsonGenerator.writeNumberField("columnEnd", expressionGroup.getPointsFrom().getEndCol());
+            jsonGenerator.writeEndObject();
+
+            jsonGenerator.writeObjectFieldStart("to");
+            jsonGenerator.writeStringField("path", expressionGroup.getPointsTo().getPath());
+            jsonGenerator.writeNumberField("lineStart", expressionGroup.getPointsTo().getStartLine());
+            jsonGenerator.writeNumberField("lineEnd", expressionGroup.getPointsTo().getEndLine());
+            jsonGenerator.writeNumberField("columnStart", expressionGroup.getPointsTo().getStartCol());
+            jsonGenerator.writeNumberField("columnEnd", expressionGroup.getPointsTo().getEndCol());
             jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
