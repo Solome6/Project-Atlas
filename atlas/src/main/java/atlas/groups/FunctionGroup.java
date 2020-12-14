@@ -7,6 +7,9 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents each method from a file.
+ */
 public class FunctionGroup implements IExpressionParentGroup {
 
     private final MethodDeclaration methodDecl;
@@ -26,6 +29,10 @@ public class FunctionGroup implements IExpressionParentGroup {
         this.createChildren();
     }
 
+    /**
+     * Initializes the necessary ExpressionGroups from this method where an ExpressionGroup refers to a method call that points to
+     * some external file present in the project.
+     */
     private void createChildren() {
         BlockStmt body = methodDecl.getBody().get();
         List<MethodCallExpr> expressions = new ArrayList<>();

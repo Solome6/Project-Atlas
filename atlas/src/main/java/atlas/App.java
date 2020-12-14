@@ -11,14 +11,13 @@ import atlas.groups.ProjectGroup;
 import atlas.serializer.ProjectGroupSerializer;
 
 /**
- * Hello world!
+ * Main class run to initialize the representation of a Java Project to be visualized in the Atlas extension.
  */
 public final class App {
-    private App() {
-    }
 
     /**
-     * Says hello to the world.
+     * Provided with a directory of Java files, initializes a ProjectGroup
+     *  generates a JSON of the various expression calls from the project 
      *
      * @param args The arguments of the program.
      */
@@ -28,12 +27,7 @@ public final class App {
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
 
-<<<<<<< HEAD
-        // args = new String[]{"D:\\Programming\\Project-Atlas\\",
-        // "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-=======
         args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
->>>>>>> 271bfa8aa8c815e7fa26b3d4b3c6841ac772857e
         if (args != null && args.length > 0) {
             try {
                 String projectRoot;

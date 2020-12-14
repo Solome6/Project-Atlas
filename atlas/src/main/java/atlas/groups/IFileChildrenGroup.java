@@ -1,5 +1,8 @@
 package atlas.groups;
 
+/**
+ * Interface to represent the various children a FileGroup can have.
+ */
 public interface IFileChildrenGroup extends IGroup {
 
     /**

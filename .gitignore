@@ -2,3 +2,5 @@
 .vscode/
 ./atlas/atlas.json
 ./atlas/.idea
+.idea
+atlas.json

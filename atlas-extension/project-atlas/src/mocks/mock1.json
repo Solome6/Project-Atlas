@@ -1,0 +1,148 @@
+{
+    "fileBoxes" : [ {
+      "pathName" : "mocks.example_project.src.controllers.PersonDogController",
+      "source" : "package mocks.example_project.src.controllers;\n\nimport java.util.ArrayList;\n\nimport mocks.example_project.src.models.Corgi;\nimport mocks.example_project.src.models.Dog;\nimport mocks.example_project.src.models.Pet;\nimport mocks.example_project.src.views.DogView;\nimport mocks.example_project.src.views.PetRelationshipView;\n\npublic class PersonDogController {\n\n    public ArrayList<Pet> pets;\n    public PetRelationshipView view;\n\n    public PersonDogController(ArrayList<Pet> pets, PetRelationshipView view) {\n        this.pets = pets;\n        this.view = view;\n    }\n\n    public void run() {\n        for (Pet pet : this.pets) {\n            if (pet instanceof Corgi) {\n                Corgi corgi = (Corgi) pet;\n                Dog dog = corgi;\n\n                pet.setName(corgi.getName());\n\n                pet.getOwner().getSocialSecurity();\n\n                System.out.println(corgi.bark());\n                System.out.println(dog.bark());\n                System.out.println(dog.getName());\n\n                DogView dv1 = new DogView(pet.getName());\n                DogView dv2 = new DogView(corgi.getName());\n                this.view.drawDog(dv1);\n                this.view.drawDog(dv2);\n            }\n        }\n    }\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.models.Cat",
+      "source" : "package mocks.example_project.src.models;\n\npublic class Cat implements Pet {\n    public Person owner;\n    public String name;\n\n    public Cat(Person owner, String name) {\n        this.owner = owner;\n        this.name = name;\n    }\n\n    public Person getOwner() {\n        return this.owner;\n    }\n\n    public void setOwner(Person owner) {\n        this.owner = owner;\n    }\n\n    public String getName() {\n        return this.name;\n    }\n\n    public void setName(String name) {\n        this.name = name;\n    }\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.models.Corgi",
+      "source" : "package mocks.example_project.src.models;\n\npublic class Corgi extends Dog {\n\n    public Corgi() {\n        super(null, \"CorgSmith\", \"Corgi\");\n    }\n\n    @Override\n    public String getName() {\n        return \"I'm \" + super.getName();\n    }\n\n    @Override\n    public String bark() {\n        return \"Woof\";\n    }\n\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.models.Dog",
+      "source" : "package mocks.example_project.src.models;\n\npublic abstract class Dog implements Pet {\n    public Person owner;\n    public String name;\n    public String breed;\n\n    public Dog(Person owner, String name, String breed) {\n        this.owner = owner;\n        this.name = name;\n        this.breed = breed;\n    }\n\n    public Person getOwner() {\n        return this.owner;\n    }\n\n    public void setOwner(Person owner) {\n        this.owner = owner;\n    }\n\n    public String getName() {\n        return this.name;\n    }\n\n    public void setName(String name) {\n        this.name = name;\n    }\n\n    public abstract String bark();\n\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.models.Person",
+      "source" : "package mocks.example_project.src.models;\n\nimport java.util.ArrayList;\n\npublic class Person {\n    public int age;\n    public String firstName;\n    public String lastName;\n    private final String socialSecurity;\n    private ArrayList<Person> friends;\n\n    public Person(String firstName, String lastName, int age, String socialSecurity) {\n        this.firstName = firstName;\n        this.lastName = lastName;\n        this.age = age;\n        this.socialSecurity = socialSecurity;\n        this.friends = new ArrayList<>();\n    }\n\n    public Person(String firstName, String lastName, int age, String socialSecurity, ArrayList<Person> friends) {\n        this.firstName = firstName;\n        this.lastName = lastName;\n        this.age = age;\n        this.socialSecurity = socialSecurity;\n        this.friends = friends;\n    }\n\n    public String getSocialSecurity() {\n        return this.socialSecurity;\n    }\n\n    public ArrayList<Person> getFriends() {\n        return this.friends;\n    }\n\n    public void addFriend(Person friend) {\n        this.friends.add(friend);\n    }\n\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.models.Pet",
+      "source" : "package mocks.example_project.src.models;\n\npublic interface Pet {\n    public Person getOwner();\n\n    public void setOwner(Person owner);\n\n    public String getName();\n\n    public void setName(String name);\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.views.DogView",
+      "source" : "package mocks.example_project.src.views;\n\npublic class DogView {\n    public String name;\n\n    public DogView(String name) {\n        this.name = name;\n    }\n\n    public void draw() {\n        // Do something\n    }\n}\n"
+    }, {
+      "pathName" : "mocks.example_project.src.views.PetRelationshipView",
+      "source" : "package mocks.example_project.src.views;\n\npublic class PetRelationshipView {\n\n    public void drawDog(DogView dv) {\n        dv.draw();\n    }\n\n    public void forceRender() {\n        // Do something\n    }\n\n    public void killOwner(String ownerName) {\n        // Do something\n    }\n\n}\n"
+    } ],
+    "arrows" : [ {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 27,
+        "lineEnd" : 27,
+        "columnStart" : 17,
+        "columnEnd" : 44
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.models.Pet",
+        "lineStart" : 10,
+        "lineEnd" : 10,
+        "columnStart" : 5,
+        "columnEnd" : 37
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 29,
+        "lineEnd" : 29,
+        "columnStart" : 17,
+        "columnEnd" : 30
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.models.Pet",
+        "lineStart" : 4,
+        "lineEnd" : 4,
+        "columnStart" : 5,
+        "columnEnd" : 29
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 35,
+        "lineEnd" : 35,
+        "columnStart" : 43,
+        "columnEnd" : 55
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.models.Pet",
+        "lineStart" : 8,
+        "lineEnd" : 8,
+        "columnStart" : 5,
+        "columnEnd" : 28
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 36,
+        "lineEnd" : 36,
+        "columnStart" : 43,
+        "columnEnd" : 57
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.models.Corgi",
+        "lineStart" : 9,
+        "lineEnd" : 12,
+        "columnStart" : 5,
+        "columnEnd" : 5
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 37,
+        "lineEnd" : 37,
+        "columnStart" : 17,
+        "columnEnd" : 38
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.views.PetRelationshipView",
+        "lineStart" : 5,
+        "lineEnd" : 7,
+        "columnStart" : 5,
+        "columnEnd" : 5
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.controllers.PersonDogController",
+        "lineStart" : 38,
+        "lineEnd" : 38,
+        "columnStart" : 17,
+        "columnEnd" : 38
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.views.PetRelationshipView",
+        "lineStart" : 5,
+        "lineEnd" : 7,
+        "columnStart" : 5,
+        "columnEnd" : 5
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.models.Corgi",
+        "lineStart" : 11,
+        "lineEnd" : 11,
+        "columnStart" : 25,
+        "columnEnd" : 39
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.models.Dog",
+        "lineStart" : 22,
+        "lineEnd" : 24,
+        "columnStart" : 5,
+        "columnEnd" : 5
+      }
+    }, {
+      "from" : {
+        "path" : "mocks.example_project.src.views.PetRelationshipView",
+        "lineStart" : 6,
+        "lineEnd" : 6,
+        "columnStart" : 9,
+        "columnEnd" : 17
+      },
+      "to" : {
+        "path" : "mocks.example_project.src.views.DogView",
+        "lineStart" : 10,
+        "lineEnd" : 12,
+        "columnStart" : 5,
+        "columnEnd" : 5
+      }
+    } ]
+  }

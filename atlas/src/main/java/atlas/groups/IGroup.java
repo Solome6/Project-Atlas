@@ -10,22 +10,24 @@ public interface IGroup {
     /**
      * Returns the children groups nested inside this IGroup.
      *
-     * @Return a list of IGroups.
+     * @return a list of IGroups.
      */
     List<? extends IGroup> getChildrenGroup();
 
     /**
-     * Returns the main parent IGroup this IGroup is a child of.
+     * @return the main parent IGroup this IGroup is a child of.
      */
     IGroup getParentGroup();
 
     /**
      * Sets the package location of this FileGroup.
+     * 
+     * @param pckg The String the package of this IGroup
      */
     void setPackage(String pckg);
 
     /**
-     * Retrieves the path a group may be in.
+     * Retrieves the package a group may be in.
      *
      * @return The String of the path
      */

@@ -14,6 +14,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents each Java file in the project
+ */
 public class FileGroup implements IGroup {
 
     private final List<IFileChildrenGroup> children;
@@ -31,6 +34,11 @@ public class FileGroup implements IGroup {
         this.createChildren(path);
     }
 
+    /**
+     * Sets the source code of the file to preserve all whitespace
+     * 
+     * @param path The path of this File.
+     */
     private void setSource(String path) {
         try {
             StringBuilder builder = new StringBuilder();
@@ -43,6 +51,12 @@ public class FileGroup implements IGroup {
         }
     }
 
+    /**
+     * Initializes the necessary FieldGroups and FunctionGroups from each method in this file.
+     * 
+     * @param path The location of this file.
+     * @throws Exception If the file doesn't exist
+     */
     private void createChildren(String path) throws Exception {
         File file = new File(path);
         if (!file.exists()) {

@@ -183,6 +183,10 @@ export function createArrow(
     const startFile = fileBoxes.get(from.path)!;
     const endFile = fileBoxes.get(to.path)!;
 
+     /* BUG:
+     Currently if an expression is not visible the Y-Values can draw arrows 
+     not on the box and where the line would be IF the filebox had a larger height
+     */
     const startLineY = (startFile?.findOne(
         `[data-line-number="${from.lineStart}"]`,
     ) as CodeLineSVG).transform().translateY!;

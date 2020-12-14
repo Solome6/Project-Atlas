@@ -4,6 +4,9 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Represents each field of a type of some class from an external file.
+ */
 public final class FieldGroup implements IFileChildrenGroup {
 
     private final IGroup parent;

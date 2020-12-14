@@ -6,6 +6,9 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents each method call to some external file within the Java project.
+ */
 public class ExpressionGroup implements IExpressionParentGroup {
 
     private final IExpressionParentGroup parent;
@@ -26,6 +29,12 @@ public class ExpressionGroup implements IExpressionParentGroup {
             this.formatSignature(ParserUtility.getCallSignature(method)));
     }
 
+    /**
+     * Initializes any nested method calls that may be from this expression
+     * ex: typeA.method1(typeB.method1())
+     * 
+     * @param method
+     */
     private void createChildren(MethodCallExpr method) {
         List<MethodCallExpr> methodCalls = method.findAll(MethodCallExpr.class);
         if (methodCalls.size() > 1) {
@@ -35,6 +44,11 @@ public class ExpressionGroup implements IExpressionParentGroup {
         }
     }
 
+    /**
+     * Formats the signature of the location of the location the expression points to.
+     * @param sig The full signature ofthe location this expression points to
+     * @return The String of the shortened signature
+     */
     private String formatSignature(String sig) {
         int finalPeriod = 0;
         for (int i = 0; i < sig.length(); i++) {
@@ -47,10 +61,20 @@ public class ExpressionGroup implements IExpressionParentGroup {
         return sig.substring(0, finalPeriod);
     }
 
+    /**
+     * Line of code the expression points to.
+     * 
+     * @return The CodeRegion that the expression points to
+     */
     public CodeRegion getPointsTo() {
         return this.pointsTo;
     }
 
+    /**
+     * Line of code the expression is at.
+     * 
+     * @return The CodeRegion that the expression is at
+     */
     public CodeRegion getPointsFrom() {
         return this.pointsFrom;
     }
