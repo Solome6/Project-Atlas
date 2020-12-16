@@ -36,7 +36,7 @@ public class FileGroup implements IGroup {
 
     /**
      * Sets the source code of the file to preserve all whitespace
-     * 
+     *
      * @param path The path of this File.
      */
     private void setSource(String path) {
@@ -53,7 +53,7 @@ public class FileGroup implements IGroup {
 
     /**
      * Initializes the necessary FieldGroups and FunctionGroups from each method in this file.
-     * 
+     *
      * @param path The location of this file.
      * @throws Exception If the file doesn't exist
      */
@@ -70,8 +70,10 @@ public class FileGroup implements IGroup {
                     setPackage(c.getFullyQualifiedName().get());
                     setParentPackage(c.getFullyQualifiedName().get());
                     for (FieldDeclaration fd : c.getFields()) {
-                        if (ParserUtility.isExternalType(fd, c)) {
-                            children.add(new FieldGroup(fd, thisFile));
+                        if (ParserUtility.isExternalFieldType(fd.getVariable(0))) {
+                            FieldGroup currField = new FieldGroup(fd, thisFile);
+                            children.add(currField);
+                            ProjectGroup.referenceGroups.add(currField);
                         }
                     }
                     for (MethodDeclaration m : c.getMethods()) {

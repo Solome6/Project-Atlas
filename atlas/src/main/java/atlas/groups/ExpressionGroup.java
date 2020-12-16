@@ -1,5 +1,6 @@
 package atlas.groups;
 
+import atlas.utils.CodeRegion;
 import atlas.utils.ParserUtility;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Represents each method call to some external file within the Java project.
  */
-public class ExpressionGroup implements IExpressionParentGroup {
+public class ExpressionGroup implements IExpressionParentGroup, IReferencer {
 
     private final IExpressionParentGroup parent;
     private final CodeRegion pointsTo;
@@ -32,8 +33,8 @@ public class ExpressionGroup implements IExpressionParentGroup {
     /**
      * Initializes any nested method calls that may be from this expression
      * ex: typeA.method1(typeB.method1())
-     * 
-     * @param method
+     *
+     * @param method the MethodCallExpr of this expression to get the nested calls of
      */
     private void createChildren(MethodCallExpr method) {
         List<MethodCallExpr> methodCalls = method.findAll(MethodCallExpr.class);
@@ -61,20 +62,12 @@ public class ExpressionGroup implements IExpressionParentGroup {
         return sig.substring(0, finalPeriod);
     }
 
-    /**
-     * Line of code the expression points to.
-     * 
-     * @return The CodeRegion that the expression points to
-     */
+    @Override
     public CodeRegion getPointsTo() {
         return this.pointsTo;
     }
 
-    /**
-     * Line of code the expression is at.
-     * 
-     * @return The CodeRegion that the expression is at
-     */
+    @Override
     public CodeRegion getPointsFrom() {
         return this.pointsFrom;
     }

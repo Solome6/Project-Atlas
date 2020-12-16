@@ -10,5 +10,5 @@ public interface IFileChildrenGroup extends IGroup {
      *
      * @return the File that the child expressions are apart of
      */
-	public FileGroup getFileGroup();
+    FileGroup getFileGroup();
 }

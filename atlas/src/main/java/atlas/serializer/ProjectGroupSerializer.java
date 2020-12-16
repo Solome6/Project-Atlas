@@ -1,12 +1,12 @@
 package atlas.serializer;
 
+import atlas.groups.IReferencer;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import atlas.groups.ExpressionGroup;
 import atlas.groups.FileGroup;
 import atlas.groups.ProjectGroup;
 
@@ -23,7 +23,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
 
     /**
      * Constructor that takes in an initialized ProjectGroup.
-     * 
+     *
      * @param projectGroup The ProjectGroup to be serialized?
      */
     public ProjectGroupSerializer(Class<ProjectGroup> projectGroup) {
@@ -32,7 +32,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
 
     /**
      * Serializes the provided ProjectGroup into a format:
-     * 
+     *
      * {
      * "fileBoxes": [
      *   "fileBox1Name": {
@@ -43,23 +43,23 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
      *    ...
      *    }
      *   ... (more fileBox objects)
-     * 
+     *
      *  ]
      *  "arrows": [
      *   {
      *     "from": {
      *       "path": "path/to/file1",
-     *       "lineStart": 1, 
+     *       "lineStart": 1,
      *       "lineEnd": 1, (exclusive)
      *       "columnStart": 0,
      *       "columnEnd:" 50
      *     },
      *     "to": {
      *       "path": "path/to/file2",
-     *       "lineStart": 1, 
+     *       "lineStart": 1,
      *       "lineEnd": 1, (exclusive)
      *       "columnStart": 0,
-     *       "columnEnd:" 50  
+     *       "columnEnd:" 50
      *     }
      *   }
      *   {
@@ -67,7 +67,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
      *   }
      *  ]
      * }
-     * 
+     *
      * @param projectGroup The fully initialized ProjectGroup to be creating the JSON from.
      */
     @Override
@@ -84,7 +84,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
 
     /**
      * Serializes the JSON data for each FileBox present in the ProjectGroup
-     * 
+     *
      * @param jsonGenerator The Jackson object that serializes the ProjectGroup
      * @throws IOException If the JsonGenerator isn't able to properly create the JSON object
      */
@@ -100,15 +100,15 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
     }
 
     /**
-     * Serializes the JOSN data for each external method call expression in the Java Project. This is using the 
+     * Serializes the JOSN data for each external method call expression in the Java Project. This is using the
      * master list of expressions that was updated as the ProjectGroup was initialized
-     * 
+     *
      * @param jsonGenerator The Jackson object that serializes the ProjectGroup
      * @throws IOException If the JsonGenerator isn't able to properly create the JSON object
      */
     private void writeArrowArray(JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart("arrows");
-        for (ExpressionGroup expressionGroup : ProjectGroup.expressionGroups) {
+        for (IReferencer expressionGroup : ProjectGroup.referenceGroups) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeObjectFieldStart("from");
             jsonGenerator.writeStringField("path", expressionGroup.getPointsFrom().getPath());

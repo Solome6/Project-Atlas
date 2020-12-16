@@ -1,4 +1,4 @@
-package atlas.groups;
+package atlas.utils;
 
 /**
  * Represents the location of a part of code and its path/
@@ -24,7 +24,7 @@ public class CodeRegion {
 
 	/**
 	 * Constructor setting all fields.
-	 * 
+	 *
 	 * @param startLine Int of the line where the code starts
 	 * @param endLine Int of the line where the code ends
 	 * @param startCol Int of the column where the code starts
@@ -41,7 +41,7 @@ public class CodeRegion {
 
 	/**
 	 * The line where this code starts.
-	 * 
+	 *
 	 * @return The startLine field
 	 */
 	public int getStartLine() {
@@ -50,7 +50,7 @@ public class CodeRegion {
 
 	/**
 	 * The line where this code ends.
-	 * 
+	 *
 	 * @return The endLine field
 	 */
 	public int getEndLine() {
@@ -59,7 +59,7 @@ public class CodeRegion {
 
 	/**
 	 * The column where this code starts.
-	 * 
+	 *
 	 * @return The startCol field
 	 */
 	public int getStartCol() {
@@ -68,7 +68,7 @@ public class CodeRegion {
 
 	/**
 	 * The column where this code ends.
-	 * 
+	 *
 	 * @return The endCol field
 	 */
 	public int getEndCol() {
@@ -77,7 +77,7 @@ public class CodeRegion {
 
 	/**
 	 * The location of the file this piece of code is in.
-	 * 
+	 *
 	 * @return the path field
 	 */
 	public String getPath() {
