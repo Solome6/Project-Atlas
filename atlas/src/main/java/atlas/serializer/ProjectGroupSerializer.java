@@ -1,5 +1,6 @@
 package atlas.serializer;
 
+import atlas.groups.DirectoryGroup;
 import atlas.groups.IReferencer;
 import java.io.IOException;
 
@@ -34,10 +35,18 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
      * Serializes the provided ProjectGroup into a format:
      *
      * {
+     * "directories" : [
+     *   {
+     *     "name" : ""
+     *     "path": ""
+     *     "parent": ""
+     *   }
+     * ]
      * "fileBoxes": [
      *   "fileBox1Name": {
      *    "pathname": "",
      *    "source": "",
+     *    "parent": ""
      *   }
      *   "fileBox2Name": {
      *    ...
@@ -74,12 +83,34 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
     public void serialize(ProjectGroup projectGroup, JsonGenerator jsonGenerator, SerializerProvider serializer) {
         try {
             jsonGenerator.writeStartObject();
+            this.writeDirectories(jsonGenerator);
             this.writeFileBoxArray(jsonGenerator);
             this.writeArrowArray(jsonGenerator);
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Serializes the JSON data for each Directory in the ProjectGroup
+     *
+     * @param jsonGenerator The Jackson object that serializes the ProjectGroup
+     * @throws IOException If the JsonGenerator isn't able to properly create the JSON object
+     */
+    private void writeDirectories(JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeArrayFieldStart("directories");
+        for (DirectoryGroup dg : ProjectGroup.directoryGroups) {
+            jsonGenerator.writeStartObject(dg.getPackage());
+            jsonGenerator.writeStringField("pathName", dg.getPackage());
+            if (dg.getParentGroup() != null) {
+                jsonGenerator.writeStringField("parent", dg.getParentGroup().getPackage());
+            } else {
+                jsonGenerator.writeStringField("parent", "");
+            }
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
     }
 
     /**
@@ -94,6 +125,7 @@ public class ProjectGroupSerializer extends StdSerializer<ProjectGroup> {
             jsonGenerator.writeStartObject(fileGroup.getPackage());
             jsonGenerator.writeStringField("pathName", fileGroup.getPackage());
             jsonGenerator.writeStringField("source", fileGroup.getSource());
+            jsonGenerator.writeStringField("parent", fileGroup.getParentGroup().getPackage());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();

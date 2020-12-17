@@ -17,8 +17,11 @@ public class ProjectGroup extends DirectoryGroup {
     NOTE:
     This could probably be optimized and refactored with a Map to save on time.
     */
+    public static List<DirectoryGroup> directoryGroups = new ArrayList<>();
     public static List<FileGroup> fileGroups = new ArrayList<>();
     public static List<IReferencer> referenceGroups = new ArrayList<>();
+    protected String path;
+
 
     /**
      * Constructor to initialize a ProjectGroup.
@@ -28,14 +31,11 @@ public class ProjectGroup extends DirectoryGroup {
      * @throws Exception is either of the provided paths don't exist
      */
     public ProjectGroup(String rootDir, String path) throws Exception {
-        super(path);
+        super();
+        this.path = path;
         ParserUtility.setTypeSolver(rootDir);
+        ProjectGroup.directoryGroups.add(this);
         super.createChildren(path);
-    }
-
-    @Override
-    public List<IGroup> getChildrenGroup() {
-        return super.children;
     }
 
     @Override
@@ -44,7 +44,13 @@ public class ProjectGroup extends DirectoryGroup {
     }
 
     @Override
-    public String getPackage() {
-        return super.getPackage();
+    public void setPackage(String pckg) {
+        int lastPeriod = 0;
+        for (int i = 0; i < pckg.length(); i++) {
+            if (pckg.charAt(i) == '.') {
+                lastPeriod = i;
+            }
+        }
+        this.pckg = pckg.substring(0, lastPeriod);
     }
 }

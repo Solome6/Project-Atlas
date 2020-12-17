@@ -11,7 +11,7 @@ public class DirectoryGroup implements IGroup {
     protected List<IGroup> children;
     protected String pckg;
 
-    public DirectoryGroup(String path) {
+    public DirectoryGroup() {
         this.parent = null;
         this.children = new ArrayList<>();
     }
@@ -29,7 +29,9 @@ public class DirectoryGroup implements IGroup {
         }
         for (File f : Objects.requireNonNull(projectDir.listFiles())) {
             if (f.isDirectory()) {
-                children.add(new DirectoryGroup(f.getAbsolutePath(), this));
+                DirectoryGroup dg = new DirectoryGroup(f.getAbsolutePath(), this);
+                children.add(dg);
+                ProjectGroup.directoryGroups.add(dg);
             } else if (f.getAbsolutePath().endsWith(".java")) {
                 IGroup fileGroup = new FileGroup(f.getAbsolutePath(), this);
                 children.add(fileGroup);
@@ -52,6 +54,7 @@ public class DirectoryGroup implements IGroup {
     @Override
     public void setPackage(String pckg) {
         this.pckg = pckg;
+        this.parent.setPackage(pckg);
     }
 
     @Override
