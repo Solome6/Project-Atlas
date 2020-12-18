@@ -17,7 +17,7 @@ public final class App {
 
     /**
      * Provided with a directory of Java files, initializes a ProjectGroup
-     *  generates a JSON of the various expression calls from the project 
+     *  generates a JSON of the various expression calls from the project
      *
      * @param args The arguments of the program.
      */
@@ -27,7 +27,7 @@ public final class App {
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
 
-        args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
+//        args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
         if (args != null && args.length > 0) {
             try {
                 String projectRoot;
