@@ -27,7 +27,6 @@ public final class App {
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
 
-//        args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
         if (args != null && args.length > 0) {
             try {
                 String projectRoot;
@@ -40,13 +39,13 @@ public final class App {
                 projectPath = args[1];
 
                 ProjectGroup projectGroup = new ProjectGroup(projectRoot, projectPath);
-                File f = new File("atlas.json");
-                f.setWritable(true);
-                f.setReadable(true);
-                FileWriter writer = new FileWriter(f);
-                writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
-                writer.close();
-                System.out.println("--------------------------------------------------------------!");
+//                File f = new File("atlas.json");
+//                f.setWritable(true);
+//                f.setReadable(true);
+//                FileWriter writer = new FileWriter(f);
+//                writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
+//                writer.close();
+                System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
             } catch (Exception e) {
                 System.out.println("Exception:");
                 e.printStackTrace();
