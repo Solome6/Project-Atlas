@@ -1,8 +1,5 @@
 package atlas;
 
-import java.io.File;
-import java.io.FileWriter;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -27,6 +24,10 @@ public final class App {
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
 
+//        args = new String[]{"c:\\Programming\\Project-Atlas\\atlas", "c:\\Programming\\Project-Atlas\\atlas\\src"};
+//        args = new String[]{"c:\\Programming\\Project-Atlas\\mocks", "c:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
+//        args = new String[]{"c:\\Programming\\Project-Atlas\\mocks\\example_project\\src", "c:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
+
         if (args != null && args.length > 0) {
             try {
                 String projectRoot;
@@ -39,18 +40,12 @@ public final class App {
                 projectPath = args[1];
 
                 ProjectGroup projectGroup = new ProjectGroup(projectRoot, projectPath);
-//                File f = new File("atlas.json");
-//                f.setWritable(true);
-//                f.setReadable(true);
-//                FileWriter writer = new FileWriter(f);
-//                writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
-//                writer.close();
                 System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
             } catch (Exception e) {
                 System.out.println("Exception:");
                 e.printStackTrace();
                 System.out.println(e.getMessage());
-                System.out.println(e.getCause());
+                e.getCause();
             }
         }
     }

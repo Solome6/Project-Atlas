@@ -1,7 +1,6 @@
 package atlas.utils;
 
 import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -13,10 +12,8 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
-import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import java.util.Optional;
 
 /**
@@ -24,10 +21,11 @@ import java.util.Optional;
  */
 public class ParserUtility {
 
-    private static TypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
+    private static final CombinedTypeSolver typeSolver = new CombinedTypeSolver();
 
-    public static void setTypeSolver(String dirpath) {
-        typeSolver = new CombinedTypeSolver(new JavaParserTypeSolver(dirpath));
+    public static void setTypeSolver(String dirPath) {
+
+        typeSolver.add(new JavaParserTypeSolver(dirPath));
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
         StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
     }
@@ -53,6 +51,7 @@ public class ParserUtility {
      */
     public static boolean isExternalMethodCall(MethodCallExpr expr) {
         try {
+            System.out.println(expr.toString());
             JavaParserFacade facade = JavaParserFacade.get(typeSolver);
 
             SymbolReference<ResolvedMethodDeclaration> methodRef = facade.solve(expr);

@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { spawn, exec } from "child_process";
+import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -70,20 +70,37 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             console.log("Starting process...");
-            const rootDir: string = path.resolve(__dirname, "../../../"); // Absolute path of the project directory
-            const srcDir: string = path.resolve(__dirname, "../../../mocks/example_project/src"); // src folder of the project to visualize
-            console.log(__dirname + "\n");
+            const rootDir: string = path.resolve(__dirname, "../../../");
+            // Works but no arrows are drawn!
+            // Alter mock packages... they're wrong
+            // const rootDir: string | undefined = getRootDir(); // Absolute path of the project directory
+            const srcDir = await vscode.window.showOpenDialog({  // src folder of the project to visualize
+                canSelectFiles: false,
+                canSelectFolders: true,
+                title: "Source folder of the project."
+
+            }).then((uri) => {
+                if(uri !== undefined) {
+                    return uri[0].fsPath;
+                }
+            });
+
+            console.log("root " + rootDir);
+            console.log("src " + srcDir);
+
             const atlasProcess = spawn(`java`, [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${rootDir}`, `${srcDir}`]);
               
             atlasProcess.stderr.on('data', (data) => {
                 console.error(`stderr: ${data}`);
               });
 
-              let projectJSONString: string = '';
+              let projectJSONString: string = "";
               atlasProcess.stdout.on('data', (data) => {
+                  console.log(data.toString());
                   projectJSONString += data.toString();
               });
-              console.log(projectJSONString);
+
+            //   console.log(projectJSONString);
 
             atlasProcess.on("close", async (code: number) => {
                 console.log("Closing process...");
@@ -102,6 +119,15 @@ export function activate(context: vscode.ExtensionContext) {
             // panel.webview.html = await getAtlasContent({} as ProjectJSON);
         }),
     );
+}
+
+function getRootDir() {
+    const dir = vscode.workspace.workspaceFolders;
+    if (dir === undefined) {
+        vscode.window.showErrorMessage("A workspace must be opened before running Project Atlas!");
+    } else {
+        return dir[0].uri.fsPath;
+    }
 }
 
 async function atlasMessageHandler(panel: vscode.WebviewPanel, message: Message) {
