@@ -70,10 +70,6 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             console.log("Starting process...");
-            // const rootDir: string = path.resolve(__dirname, "../../../");
-            // Works but no arrows are drawn!
-            // Alter mock packages... they're wrong
-            // const rootDir: string | undefined = getRootDir(); // Absolute path of the project directory
             const srcDir = await vscode.window.showOpenDialog({  // src folder of the project to visualize
                 canSelectFiles: false,
                 canSelectFolders: true,

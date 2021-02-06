@@ -23,7 +23,7 @@ public final class App {
         SimpleModule module = new SimpleModule("ProjectGroupSerializer", new Version(1, 0, 0, null, null, null));
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
-      args = new String[]{"c:\\Programming\\Atlas-Mock\\src"};
+//        args = new String[]{"c:\\Programming\\Atlas-Mock\\src"};
         if (args != null && args.length == 1) {
             try {
                 String projectPath = args[0];
