@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             console.log("Starting process...");
-            const rootDir: string = path.resolve(__dirname, "../../../");
+            // const rootDir: string = path.resolve(__dirname, "../../../");
             // Works but no arrows are drawn!
             // Alter mock packages... they're wrong
             // const rootDir: string | undefined = getRootDir(); // Absolute path of the project directory
@@ -84,11 +84,9 @@ export function activate(context: vscode.ExtensionContext) {
                     return uri[0].fsPath;
                 }
             });
-
-            console.log("root " + rootDir);
             console.log("src " + srcDir);
 
-            const atlasProcess = spawn(`java`, [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${rootDir}`, `${srcDir}`]);
+            const atlasProcess = spawn(`java`, [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${srcDir}`]);
               
             atlasProcess.stderr.on('data', (data) => {
                 console.error(`stderr: ${data}`);

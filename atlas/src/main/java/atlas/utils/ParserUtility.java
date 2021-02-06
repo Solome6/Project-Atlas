@@ -14,6 +14,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import java.util.Optional;
 
 /**
@@ -23,9 +24,9 @@ public class ParserUtility {
 
     private static final CombinedTypeSolver typeSolver = new CombinedTypeSolver();
 
-    public static void setTypeSolver(String dirPath) {
-
-        typeSolver.add(new JavaParserTypeSolver(dirPath));
+    public static void setTypeSolver(String path) {
+        typeSolver.add(new JavaParserTypeSolver(path));
+        typeSolver.add(new ReflectionTypeSolver());
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(typeSolver);
         StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
     }
@@ -34,7 +35,7 @@ public class ParserUtility {
         try {
             if (fieldDecl.getType().resolve().isReferenceType()) {
                 ResolvedReferenceType refType = fieldDecl.getType().resolve().asReferenceType();
-                return !refType.isPrimitive() && !refType.isJavaLangObject();
+                return refType.isPrimitive() || !refType.describe().startsWith("java");
             } else {
                 return false;
             }
@@ -51,14 +52,12 @@ public class ParserUtility {
      */
     public static boolean isExternalMethodCall(MethodCallExpr expr) {
         try {
-            System.out.println(expr.toString());
             JavaParserFacade facade = JavaParserFacade.get(typeSolver);
 
             SymbolReference<ResolvedMethodDeclaration> methodRef = facade.solve(expr);
             ResolvedMethodDeclaration methodDecl = methodRef.getCorrespondingDeclaration();
             Optional<MethodDeclaration> astDecl = methodDecl.toAst();
-
-            return astDecl.isPresent();
+            return astDecl.map(methodDeclaration -> methodDeclaration.getBegin().isPresent()).orElse(false);
         } catch (UnsolvedSymbolException e) {
             return false;
         }

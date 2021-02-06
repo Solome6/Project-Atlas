@@ -23,23 +23,12 @@ public final class App {
         SimpleModule module = new SimpleModule("ProjectGroupSerializer", new Version(1, 0, 0, null, null, null));
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
-
-//        args = new String[]{"c:\\Programming\\Project-Atlas\\atlas", "c:\\Programming\\Project-Atlas\\atlas\\src"};
-//        args = new String[]{"c:\\Programming\\Project-Atlas\\mocks", "c:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-//        args = new String[]{"c:\\Programming\\Project-Atlas\\mocks\\example_project\\src", "c:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-
-        if (args != null && args.length > 0) {
+      args = new String[]{"c:\\Programming\\Atlas-Mock\\src"};
+        if (args != null && args.length == 1) {
             try {
-                String projectRoot;
-                String projectPath;
-                if (args.length == 1) {
-                    String arg = args[0];
-                    args = arg.split(" ");
-                }
-                projectRoot = args[0];
-                projectPath = args[1];
+                String projectPath = args[0];
 
-                ProjectGroup projectGroup = new ProjectGroup(projectRoot, projectPath);
+                ProjectGroup projectGroup = new ProjectGroup(projectPath);
                 System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
             } catch (Exception e) {
                 System.out.println("Exception:");
