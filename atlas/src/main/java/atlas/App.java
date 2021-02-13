@@ -1,8 +1,5 @@
 package atlas;
 
-import java.io.File;
-import java.io.FileWriter;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -26,32 +23,18 @@ public final class App {
         SimpleModule module = new SimpleModule("ProjectGroupSerializer", new Version(1, 0, 0, null, null, null));
         module.addSerializer(ProjectGroup.class, new ProjectGroupSerializer());
         mapper.registerModule(module);
-
-//        args = new String[]{"D:\\Programming\\Project-Atlas\\", "D:\\Programming\\Project-Atlas\\mocks\\example_project\\src"};
-        if (args != null && args.length > 0) {
+//        args = new String[]{"c:\\Programming\\Atlas-Mock\\src"};
+        if (args != null && args.length == 1) {
             try {
-                String projectRoot;
-                String projectPath;
-                if (args.length == 1) {
-                    String arg = args[0];
-                    args = arg.split(" ");
-                }
-                projectRoot = args[0];
-                projectPath = args[1];
+                String projectPath = args[0];
 
-                ProjectGroup projectGroup = new ProjectGroup(projectRoot, projectPath);
-                File f = new File("atlas.json");
-                f.setWritable(true);
-                f.setReadable(true);
-                FileWriter writer = new FileWriter(f);
-                writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
-                writer.close();
-                System.out.println("--------------------------------------------------------------!");
+                ProjectGroup projectGroup = new ProjectGroup(projectPath);
+                System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(projectGroup));
             } catch (Exception e) {
                 System.out.println("Exception:");
                 e.printStackTrace();
                 System.out.println(e.getMessage());
-                System.out.println(e.getCause());
+                e.getCause();
             }
         }
     }

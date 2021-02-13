@@ -1,5 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -68,44 +69,59 @@ export function activate(context: vscode.ExtensionContext) {
                 },
             );
 
-            // console.log("Starting process...");
-            // const arg1 = path.resolve(__dirname, "../../../");
-            // const arg2 = path.resolve(__dirname, "../../../mocks/example_project/src");
-            // const atlasProcess = spawn("mvn", [
-            //     "-f",
-            //     path.resolve(__dirname, "../../../atlas/pom.xml"),
-            //     "compile",
-            //     "exec:java",
-            //     // `-Dexec.mainClass="${path.resolve(__dirname, "../../../atlas/src/main/java/atlas/App.java")}"`,
-            //     `-Dexec.args=\"${arg1} ${arg2}\"`,
-            // ], {});
+            console.log("Starting process...");
+            const srcDir = await vscode.window.showOpenDialog({  // src folder of the project to visualize
+                canSelectFiles: false,
+                canSelectFolders: true,
+                title: "Source folder of the project."
 
-            // atlasProcess.stdout.on("data", (data) => {
-            //     console.log(`${data}`);
-            // });
+            }).then((uri) => {
+                if(uri !== undefined) {
+                    return uri[0].fsPath;
+                }
+            });
+            console.log("src " + srcDir);
 
-            // atlasProcess.on("close", async (code) => {
-            //     console.log("Closing process...");
-            //     if (code === 0) {
-            //         const projectJSONString = await getFileContent(
-            //             "../../../atlas/atlas.json",
-            //             "Project not found",
-            //         );
-            //         const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-            //         panel.webview.onDidReceiveMessage((message) =>
-            //             atlasMessageHandler(panel, message),
-            //         );
-            //         panel.webview.html = await getAtlasContent(projectJSON);
-            //         console.log("Something went wrong on the frontend");
-            //     } else {
-            //         console.log("Something went wrong, code:", code);
-            //     }
-            // });
+            const atlasProcess = spawn(`java`, [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${srcDir}`]);
+              
+            atlasProcess.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+              });
+
+              let projectJSONString: string = "";
+              atlasProcess.stdout.on('data', (data) => {
+                  console.log(data.toString());
+                  projectJSONString += data.toString();
+              });
+
+            //   console.log(projectJSONString);
+
+            atlasProcess.on("close", async (code: number) => {
+                console.log("Closing process...");
+                if (code === 0) {
+                    const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
+                    panel.webview.onDidReceiveMessage((message) =>
+                        atlasMessageHandler(panel, message),
+                    );
+                    panel.webview.html = await getAtlasContent(projectJSON);
+                } else {
+                    console.log("Something went wrong, code:", code);
+                }
+            });
 
             panel.webview.onDidReceiveMessage((message) => atlasMessageHandler(panel, message));
-            panel.webview.html = await getAtlasContent({} as ProjectJSON);
+            // panel.webview.html = await getAtlasContent({} as ProjectJSON);
         }),
     );
+}
+
+function getRootDir() {
+    const dir = vscode.workspace.workspaceFolders;
+    if (dir === undefined) {
+        vscode.window.showErrorMessage("A workspace must be opened before running Project Atlas!");
+    } else {
+        return dir[0].uri.fsPath;
+    }
 }
 
 async function atlasMessageHandler(panel: vscode.WebviewPanel, message: Message) {
@@ -334,7 +350,7 @@ async function getFileContent(relativePath: string, logError?: string) {
 
 async function generateContentSVG(projectJson: ProjectJSON) {
     // TODO: TEMPORARY
-    projectJson = JSON.parse(await getFileContent("./mocks/mock1.json")) as ProjectJSON;
+    // projectJson = JSON.parse(await getFileContent("./mocks/mock1.json")) as ProjectJSON;
 
     const { fileBoxes, arrows }: Project = convertToProject(projectJson);
     const fileBoxesSVGMap: Map<string, FileBoxSVG> = new Map();

@@ -47,7 +47,7 @@ public class ExpressionGroup implements IExpressionParentGroup, IReferencer {
 
     /**
      * Formats the signature of the location of the location the expression points to.
-     * @param sig The full signature ofthe location this expression points to
+     * @param sig The full signature of the location this expression points to
      * @return The String of the shortened signature
      */
     private String formatSignature(String sig) {

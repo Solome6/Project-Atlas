@@ -1,7 +1,9 @@
 package atlas.groups;
 
 import atlas.utils.ParserUtility;
+import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import java.util.ArrayList;
@@ -30,27 +32,29 @@ public class FunctionGroup implements IExpressionParentGroup {
     private void createChildren() {
         BlockStmt body = methodDecl.getBody().get();
         List<MethodCallExpr> expressions = new ArrayList<>();
-        body.findAll(MethodCallExpr.class).forEach(mce -> {
-            if (!expressions.isEmpty()) {
-                if (mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin().get().line
+        body.getStatements().forEach(stmnt -> stmnt.findAll(Expression.class).forEach(e -> {
+            if (e.isMethodCallExpr()) {
+                MethodCallExpr mce = (MethodCallExpr) e;
+                if (!expressions.isEmpty() && mce.getBegin().get().line == expressions.get(expressions.size() - 1).getBegin().get().line
                     && mce.getBegin().get().column == expressions.get(expressions.size() - 1).getBegin().get().column) {
                     expressions.add(expressions.size() - 1, mce);
-                    expressions.remove(expressions.size() - 1);
-                } else if (
-                    mce.getBegin().get().line != expressions.get(expressions.size() - 1).getBegin().get().line) {
+                    expressions.remove(expressions.size() - 2);
+                } else {
                     expressions.add(mce);
                 }
-            } else {
-                expressions.add(mce);
             }
-        });
+        }));
         for (MethodCallExpr expr : expressions) {
             if (ParserUtility.isExternalMethodCall(expr)) {
-                ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
-                this.children.add(expressionGroup);
-                ProjectGroup.referenceGroups.add(expressionGroup);
+                this.addExpression(expr);
             }
         }
+    }
+
+    private void addExpression(MethodCallExpr expr) {
+        ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
+        this.children.add(expressionGroup);
+        ProjectGroup.referenceGroups.add(expressionGroup);
     }
 
     @Override

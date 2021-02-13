@@ -3,6 +3,7 @@
     "displayName": "Project Atlas",
     "description": "Codebase visualizer",
     "version": "0.0.1",
+    "publisher": "atlasvisualizer",
     "engines": {
         "vscode": "^1.50.0"
     },

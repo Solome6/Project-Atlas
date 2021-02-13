@@ -47,6 +47,8 @@ const LINE_HEIGHT = 25;
 const TITLE_SIZE = 30;
 const TITLE_BAR_SIZE = TITLE_SIZE + 10;
 const CODE_SIZE = 20;
+const BOX_WIDTH = 600;
+const BOX_HEIGHT = 700;
 
 export function createFileBox({
     pathName,
@@ -71,9 +73,6 @@ export function createFileBox({
             </foreignobject>
         </svg>`;
     */
-
-    const BOX_WIDTH = 600;
-    const BOX_HEIGHT = 700;
 
     const contentLines = content.split("\n");
 
@@ -176,6 +175,19 @@ function createCodeLine(lineNumber: number, content: string): CodeLineSVG {
     // return lineSVG.add(lineNumberText).add(lineText);
 }
 
+function minmax(lowerBound: number, value: number, upperBound: number) {
+    let result;
+    if (value < lowerBound) {
+        result = lowerBound;
+    } else if (value > upperBound) {
+        result = upperBound;
+    } else {
+        result = value;
+    }
+    console.log(lowerBound, result, upperBound);
+    return result;
+}
+
 export function createArrow(
     { from, to }: ArrowProps,
     fileBoxes: Map<string, FileBoxSVG>,
@@ -183,24 +195,51 @@ export function createArrow(
     const startFile = fileBoxes.get(from.path)!;
     const endFile = fileBoxes.get(to.path)!;
 
-     /* BUG:
-     Currently if an expression is not visible the Y-Values can draw arrows 
-     not on the box and where the line would be IF the filebox had a larger height
-     */
+    /* BUG:
+    Currently if an expression is not visible the Y-Values can draw arrows
+    not on the box and where the line would be IF the filebox had a larger height
+    */
+
+    const startBoxY = startFile.y();
+    const startBoxX = startFile.x();
+    const endBoxY = endFile.y();
+    const endBoxX = endFile.x();
+
+    const startScroll = startFile.findOne(".scrollBox").node.scrollTop || 0;
+    const endScroll = endFile.findOne(".scrollBox").node.scrollTop || 0;
+
     const startLineY = (startFile?.findOne(
         `[data-line-number="${from.lineStart}"]`,
-    ) as CodeLineSVG).transform().translateY!;
+    ) as CodeLineSVG).transform().translateY!; // in pixels
     const endLineY = (endFile?.findOne(
         `[data-line-number="${to.lineStart}"]`,
-    ) as CodeLineSVG).transform().translateY!;
+    ) as CodeLineSVG).transform().translateY!; // in pixels
 
-    return SVG()
-        .line(
-            startFile.x() + (CODE_SIZE / 2) * from.columnStart + 35,
-            startFile.y() + startLineY + TITLE_BAR_SIZE + LINE_HEIGHT / 2,
-            endFile.x() + (CODE_SIZE / 2) * from.lineEnd + 35,
-            endFile.y() + endLineY + TITLE_BAR_SIZE + LINE_HEIGHT / 2,
-        )
-        .addClass("arrow")
-        .stroke({ width: 10, color: "green" });
+    console.log(startBoxY, startFile.height());
+
+    return (
+        SVG()
+            // .line(
+            //     startBoxX + (CODE_SIZE / 2) * from.columnStart + 35,
+            //     minmax(startBoxY, startBoxY + startLineY + TITLE_BAR_SIZE + (LINE_HEIGHT / 2) - startScroll, startBoxY + BOX_HEIGHT - TITLE_BAR_SIZE),
+            //     endBoxX + (CODE_SIZE / 2) * from.lineEnd + 35,
+            //     minmax(endBoxY, endBoxY + endLineY + TITLE_BAR_SIZE + (LINE_HEIGHT / 2) - endScroll, endBoxY + BOX_HEIGHT - TITLE_BAR_SIZE)
+            // )
+            .line(
+                startBoxX + (CODE_SIZE / 2) * from.columnStart + 35,
+                minmax(
+                    startBoxY + TITLE_BAR_SIZE,
+                    startBoxY + startLineY + TITLE_BAR_SIZE,
+                    startBoxY + BOX_HEIGHT,
+                ),
+                endBoxX + (CODE_SIZE / 2) * from.lineEnd + 35,
+                minmax(
+                    endBoxY + TITLE_BAR_SIZE,
+                    endBoxY + endLineY + TITLE_BAR_SIZE,
+                    endBoxY + BOX_HEIGHT,
+                ),
+            )
+            .addClass("arrow")
+            .stroke({ width: 10, color: "green" })
+    );
 }

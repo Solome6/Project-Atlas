@@ -69,7 +69,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
+   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -201,8 +201,7 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <maximum>${jacoco.unit-tests.limit.class-complexity}
-                      </maximum>
+                      <maximum>${jacoco.unit-tests.limit.class-complexity}</maximum>
                     </limit>
                   </limits>
                 </rule>
@@ -212,8 +211,8 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <maximum>${jacoco.unit-tests.limit.method-complexity}
-                      </maximum>
+<!--                      <maximum>${jacoco.unit-tests.limit.method-complexity}</maximum>-->
+                      <maximum>7</maximum>
                     </limit>
                   </limits>
                 </rule>

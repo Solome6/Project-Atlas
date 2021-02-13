@@ -26,14 +26,13 @@ public class ProjectGroup extends DirectoryGroup {
     /**
      * Constructor to initialize a ProjectGroup.
      *
-     * @param rootDir Root Directory of the Java Project to be used in the TypeSolver
-     * @param path Source Folder of the Java Project
+     * @param srcPath Source Folder of the Java Project
      * @throws Exception is either of the provided paths don't exist
      */
-    public ProjectGroup(String rootDir, String path) throws Exception {
+    public ProjectGroup(String srcPath) throws Exception {
         super();
-        this.path = path;
-        ParserUtility.setTypeSolver(rootDir);
+        this.path = srcPath;
+        ParserUtility.setTypeSolver(srcPath);
         ProjectGroup.directoryGroups.add(this);
         super.createChildren(path);
     }
