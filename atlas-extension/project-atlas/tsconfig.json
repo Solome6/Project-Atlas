@@ -7,6 +7,10 @@
 			"es6",
 			"DOM"
 		],
+		"types": [
+			"node",
+			"jest"
+		],
 		"sourceMap": true,
 		"rootDir": "src",
 		"removeComments": true,
@@ -18,6 +22,6 @@
 	},
 	"exclude": [
 		"node_modules",
-		".vscode-test"
+		".vscode-test",
 	]
 }

@@ -332,6 +332,7 @@ async function getFileContent(relativePath: string, logError?: string) {
     });
 }
 
+
 async function generateContentSVG(projectJson: ProjectJSON) {
     // TODO: TEMPORARY
     projectJson = JSON.parse(await getFileContent("./mocks/mock1.json")) as ProjectJSON;
