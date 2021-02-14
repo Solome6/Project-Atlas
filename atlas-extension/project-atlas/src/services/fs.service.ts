@@ -56,15 +56,13 @@ export async function writeFile(
 export async function selectFolder({ title }: FSSelectOptions = {}): Promise<
     vscode.Uri | undefined
 > {
-    return new Promise<vscode.Uri | undefined>(async (resolve, reject) => {
-        return await vscode.window
-            .showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                title,
-                defaultUri: vscode.workspace.workspaceFolders?.[0].uri,
-            })
-            .then((uris) => uris?.[0]);
-    });
+    return await vscode.window
+        .showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            title,
+            defaultUri: vscode.workspace.workspaceFolders?.[0].uri,
+        })
+        .then((uris) => uris?.[0]);
 }

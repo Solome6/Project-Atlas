@@ -9,11 +9,8 @@ export function parseSourceToJSON(srcDir: string, { timeout }: ParseOptions = {}
     return new Promise((resolve, reject) => {
         let projectJSONString: string = "";
 
-        const atlasProcess = spawn(
-            `java`,
-            [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${srcDir}`],
-            { timeout },
-        );
+        const jarPath = path.resolve(__dirname, "../../atlas-java-parser.jar");
+        const atlasProcess = spawn(`java`, [`-jar`, jarPath, `${srcDir}`], { timeout });
 
         atlasProcess.stderr.on("data", (data) => {
             reject(`stderr: ${data}`);
