@@ -39,26 +39,21 @@ export interface Ref<T> {
     current?: T;
 }
 
+const ATLAS_METADATA_LOCATION: string = "atlas-metadata.json";
+const CACHE_LOCATION: string = "atlas-for-project.json";
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "project-atlas" is now active!');
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
+    // Test command
     let disposable = vscode.commands.registerCommand("project-atlas.helloWorld", () => {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
         vscode.window.showInformationMessage("Hello World from Project Atlas!");
-        vscode.window.showErrorMessage("This is an error");
     });
     context.subscriptions.push(disposable);
 
-    const CACHE_LOCATION: string = "atlas-for-project.json";
+    // constants
     const srcDirRef: Ref<string> = {};
 
     context.subscriptions.push(
@@ -76,6 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             let projectJSONString: string;
             try {
+                // BUG: Need to initialize srcDir if cache present
                 projectJSONString = await getFileContent(CACHE_LOCATION);
                 if (projectJSONString) {
                     const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
@@ -89,27 +85,10 @@ export function activate(context: vscode.ExtensionContext) {
                     await selectFolder({ title: "Select a Source Folder" })
                 )?.fsPath;
 
-                if (!srcDirRef.current) {
-                    return;
-                }
-
-                try {
-                    projectJSONString = await parseSourceToJSON(srcDirRef.current);
-                    writeFile(CACHE_LOCATION, projectJSONString, {
-                        logError: "Can't write to cache",
-                    });
-
-                    const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                    panel.webview.html = await getAtlasContent(projectJSON);
-                } catch (error) {
-                    vscode.window.showErrorMessage(error);
-                    panel.webview.html = await getAtlasContent();
-                }
+                parseSourceAndUpdatePanel(panel, srcDirRef);
             }
 
-            panel.webview.onDidReceiveMessage(
-                createAtlasMessageHandler(panel, srcDirRef, CACHE_LOCATION),
-            );
+            panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, srcDirRef));
         }),
     );
 }
@@ -123,10 +102,31 @@ function getRootDir() {
     }
 }
 
+/**
+ * Parses the current source directory and updates the panels HTML string.
+ */
+async function parseSourceAndUpdatePanel(
+    panel: vscode.WebviewPanel,
+    srcDirRef: Ref<string>,
+): Promise<void> {
+    if (srcDirRef.current) {
+        try {
+            const projectJSONString = await parseSourceToJSON(srcDirRef.current);
+            writeFile(CACHE_LOCATION, projectJSONString, {
+                logError: "Can't write to cache",
+            });
+
+            const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
+            panel.webview.html = await getAtlasContent(projectJSON);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+        }
+    }
+}
+
 function createAtlasMessageHandler(
     panel: vscode.WebviewPanel,
     srcDirRef: Ref<string>,
-    cacheLocation?: string,
 ): (message: Message) => void {
     return async (message: Message) => {
         vscode.window.showInformationMessage("Message Received!");
@@ -136,27 +136,11 @@ function createAtlasMessageHandler(
                 srcDirRef.current = (
                     await selectFolder({ title: "Select a Source Folder" })
                 )?.fsPath;
-
-                if (!srcDirRef.current) {
-                    return;
-                }
-                // falls through (no break)
+                parseSourceAndUpdatePanel(panel, srcDirRef);
+                break;
             }
             case MessageType.Refresh: {
-                if (srcDirRef.current) {
-                    try {
-                        const projectJSONString = await parseSourceToJSON(srcDirRef.current);
-                        cacheLocation &&
-                            writeFile(cacheLocation, projectJSONString, {
-                                logError: "Can't write to cache",
-                            });
-
-                        const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                        panel.webview.html = await getAtlasContent(projectJSON);
-                    } catch (error) {
-                        vscode.window.showErrorMessage(error);
-                    }
-                }
+                parseSourceAndUpdatePanel(panel, srcDirRef);
                 break;
             }
         }
