@@ -15,6 +15,11 @@ public final class FieldGroup implements IReferencer {
     private final CodeRegion pointsFrom;
     private final CodeRegion pointsTo;
 
+    /**
+     * Represents a field instantiation of a type create from some external file/class
+     * @param fieldDecl The JavaParser FieldDeclaration this node refers to
+     * @param parent The parent FileFroup this field is in
+     */
     public FieldGroup(FieldDeclaration fieldDecl, FileGroup parent) {
         this.parent = parent;
         this.pointsFrom = new CodeRegion(fieldDecl.getBegin().get().line, fieldDecl.getBegin().get().column,
