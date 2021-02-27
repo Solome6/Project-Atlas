@@ -2,6 +2,9 @@ package atlas.groups;
 
 import atlas.utils.CodeRegion;
 
+/**
+ * Interface representing which types of IGroups have code references
+ */
 public interface IReferencer extends IFileChildrenGroup{
     /**
      * Line of code the expression points to.

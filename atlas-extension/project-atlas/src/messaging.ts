@@ -5,7 +5,8 @@ interface Camera {
 }
 
 export enum MessageType {
-    Refresh = "refreshAtlas",
+    Refresh = "refresh",
+    ChangeSource = "change_source",
     None = "none",
 }
 
@@ -14,13 +15,16 @@ interface IMessage {
     data?: any;
 }
 
-interface RefreshMessage extends IMessage {
-    type: MessageType.Refresh | "refreshAtlas";
+export interface RefreshMessage extends IMessage {
+    type: MessageType.Refresh | "refresh";
     data?: Camera;
 }
 
-interface NoMessage extends IMessage {
+export interface ChangeSourceMessage extends IMessage {
+    type: MessageType.ChangeSource | "change_source";
+}
+export interface NoMessage extends IMessage {
     type: MessageType.None | "none";
 }
 
-export type Message = RefreshMessage | NoMessage;
+export type Message = RefreshMessage | ChangeSourceMessage | NoMessage;

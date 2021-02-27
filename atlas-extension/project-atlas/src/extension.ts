@@ -1,11 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { spawn } from "child_process";
-import * as fs from "fs";
-import * as path from "path";
 import * as vscode from "vscode";
 import { ArrowSVG, createArrow, createFileBox, FileBoxSVG } from "./atlasComponents";
 import { Message, MessageType } from "./messaging";
+import { getFileContent, selectFolder, writeFile } from "./services/fs.service";
+import { parseSourceToJSON } from "./services/parser.service";
 import { convertToProject } from "./utilities";
 
 export interface CodeBlock {
@@ -36,25 +35,26 @@ export interface Project {
     arrows: Arrow[];
 }
 
+export interface Ref<T> {
+    current?: T;
+}
+
+const ATLAS_METADATA_LOCATION: string = "atlas-metadata.json";
+const CACHE_LOCATION: string = "atlas-for-project.json";
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "project-atlas" is now active!');
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
+    // Test command
     let disposable = vscode.commands.registerCommand("project-atlas.helloWorld", () => {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
         vscode.window.showInformationMessage("Hello World from Project Atlas!");
-        vscode.window.showErrorMessage("This is an error");
     });
-
     context.subscriptions.push(disposable);
+
+    // constants
+    const srcDirRef: Ref<string> = {};
 
     context.subscriptions.push(
         vscode.commands.registerCommand("project-atlas.openAtlas", async () => {
@@ -69,48 +69,26 @@ export function activate(context: vscode.ExtensionContext) {
                 },
             );
 
-            console.log("Starting process...");
-            const srcDir = await vscode.window.showOpenDialog({  // src folder of the project to visualize
-                canSelectFiles: false,
-                canSelectFolders: true,
-                title: "Source folder of the project."
-
-            }).then((uri) => {
-                if(uri !== undefined) {
-                    return uri[0].fsPath;
-                }
-            });
-            console.log("src " + srcDir);
-
-            const atlasProcess = spawn(`java`, [`-jar`, `${path.resolve(__dirname, "../atlas-java-parser.jar")}`, `${srcDir}`]);
-              
-            atlasProcess.stderr.on('data', (data) => {
-                console.error(`stderr: ${data}`);
-              });
-
-              let projectJSONString: string = "";
-              atlasProcess.stdout.on('data', (data) => {
-                  console.log(data.toString());
-                  projectJSONString += data.toString();
-              });
-
-            //   console.log(projectJSONString);
-
-            atlasProcess.on("close", async (code: number) => {
-                console.log("Closing process...");
-                if (code === 0) {
+            let projectJSONString: string;
+            try {
+                // BUG: Need to initialize srcDir if cache present
+                projectJSONString = await getFileContent(CACHE_LOCATION);
+                if (projectJSONString) {
                     const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                    panel.webview.onDidReceiveMessage((message) =>
-                        atlasMessageHandler(panel, message),
-                    );
                     panel.webview.html = await getAtlasContent(projectJSON);
                 } else {
-                    console.log("Something went wrong, code:", code);
+                    throw new Error("Cache is empty.");
                 }
-            });
+            } catch {
+                projectJSONString = "";
+                srcDirRef.current = (
+                    await selectFolder({ title: "Select a Source Folder" })
+                )?.fsPath;
 
-            panel.webview.onDidReceiveMessage((message) => atlasMessageHandler(panel, message));
-            // panel.webview.html = await getAtlasContent({} as ProjectJSON);
+                parseSourceAndUpdatePanel(panel, srcDirRef);
+            }
+
+            panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, srcDirRef));
         }),
     );
 }
@@ -124,35 +102,52 @@ function getRootDir() {
     }
 }
 
-async function atlasMessageHandler(panel: vscode.WebviewPanel, message: Message) {
-    console.log("Message Recieved!");
-    switch (message.type) {
-        case MessageType.Refresh: {
-            panel.webview.html = await getAtlasContent({} as ProjectJSON);
-            // const atlasProcess = spawn("mvn", [
-            //     "-f",
-            //     "../../../atlas/pom.xml",
-            //     "compile",
-            //     "exec:java",
-            //     '-Dexec.mainClass="atlas.App"',
-            //     '-Dexec.args="path/of/root"',
-            // ]);
+/**
+ * Parses the current source directory and updates the panels HTML string.
+ */
+async function parseSourceAndUpdatePanel(
+    panel: vscode.WebviewPanel,
+    srcDirRef: Ref<string>,
+): Promise<void> {
+    if (srcDirRef.current) {
+        try {
+            const projectJSONString = await parseSourceToJSON(srcDirRef.current);
+            writeFile(CACHE_LOCATION, projectJSONString, {
+                logError: "Can't write to cache",
+            });
 
-            // atlasProcess.on("close", async (code) => {
-            //     if (code === 0) {
-            //         const projectJSONString = await getFileContent(
-            //             "../../../atlas/atlas.json",
-            //             "Project not found",
-            //         );
-            //         const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-            //         panel.webview.html = await getAtlasContent(projectJSON);
-            //     }
-            // });
+            const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
+            panel.webview.html = await getAtlasContent(projectJSON);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
         }
     }
 }
 
-async function getAtlasContent(projectJSON: ProjectJSON) {
+function createAtlasMessageHandler(
+    panel: vscode.WebviewPanel,
+    srcDirRef: Ref<string>,
+): (message: Message) => void {
+    return async (message: Message) => {
+        vscode.window.showInformationMessage("Message Received!");
+
+        switch (message.type) {
+            case MessageType.ChangeSource: {
+                srcDirRef.current = (
+                    await selectFolder({ title: "Select a Source Folder" })
+                )?.fsPath;
+                parseSourceAndUpdatePanel(panel, srcDirRef);
+                break;
+            }
+            case MessageType.Refresh: {
+                parseSourceAndUpdatePanel(panel, srcDirRef);
+                break;
+            }
+        }
+    };
+}
+
+async function getAtlasContent(projectJSON?: ProjectJSON) {
     return `<html>
     <head>
         <style>
@@ -248,9 +243,18 @@ async function getAtlasContent(projectJSON: ProjectJSON) {
             }
 
             #refreshAtlasButton.ui {
-                --margin: 15px;
-                top: var(--margin);
-                right: var(--margin);
+                --margin-top: 15px;
+                --margin-right: 15px;
+            }
+
+            #changeSourceButton.ui {
+                --margin-top: calc(15px + 2rem + 10px);
+                --margin-right: 15px;
+            }
+
+            #refreshAtlasButton.ui, #changeSourceButton.ui {
+                top: var(--margin-top);
+                right: var(--margin-right);
 
                 font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
                 font-size: 1.1rem;
@@ -294,6 +298,7 @@ async function getAtlasContent(projectJSON: ProjectJSON) {
 
     <body>
         <button class="ui" id="refreshAtlasButton">Refresh Atlas</button>
+        <button class="ui" id="changeSourceButton">Change Source</button>
         <div class="ui" id="cameraIndicator">
             X: <span id="x-coord">0</span>
             Y: <span id="y-coord">0</span>
@@ -301,7 +306,7 @@ async function getAtlasContent(projectJSON: ProjectJSON) {
         <svg id="globalSVG" width="100%" height="100%">
             <svg id="translateSVG">
                 <g id="scaleGroup">
-                    ${await generateContentSVG(projectJSON)}
+                    ${projectJSON ? await generateContentSVG(projectJSON) : ""}
                 </g>
             </svg>
         </svg>
@@ -312,40 +317,26 @@ async function getAtlasContent(projectJSON: ProjectJSON) {
     </html>`;
 }
 
-async function getAtlasScripts() {
+async function getAtlasScripts(): Promise<string> {
     return (await Promise.all([getMouseControls(), getUIControls()])).join("");
 }
 /**
  * Does not do anything yet because cannot find how to export css.
  */
-async function getAtlasStyles() {
+async function getAtlasStyles(): Promise<string> {
     return (await Promise.all([getSVGStyles()])).join("");
 }
 
-async function getMouseControls() {
-    return await getFileContent("./scripts/mouseControls.js", "Cannot find mouse scripts");
-}
-async function getUIControls() {
-    return await getFileContent("./scripts/uiControls.js", "Cannot find UI scripts");
-}
-async function getSVGStyles() {
-    return await getFileContent("./svgStyles.css", "Cannot find SVG styles");
-}
-
-async function getFileContent(relativePath: string, logError?: string) {
-    return await new Promise<string>((resolve, reject) => {
-        fs.readFile(path.resolve(__dirname, relativePath), (err, data) => {
-            if (err) {
-                vscode.window.showErrorMessage(
-                    "Something went wrong. Try reinstalling Project Atlas",
-                );
-                logError && console.error(logError);
-                reject(err);
-            } else {
-                resolve(data.toString());
-            }
-        });
+async function getMouseControls(): Promise<string> {
+    return await getFileContent("./scripts/mouseControls.js", {
+        logError: "Cannot find mouse scripts",
     });
+}
+async function getUIControls(): Promise<string> {
+    return await getFileContent("./scripts/uiControls.js", { logError: "Cannot find UI scripts" });
+}
+async function getSVGStyles(): Promise<string> {
+    return await getFileContent("./svgStyles.css", { logError: "Cannot find SVG styles" });
 }
 
 async function generateContentSVG(projectJson: ProjectJSON) {

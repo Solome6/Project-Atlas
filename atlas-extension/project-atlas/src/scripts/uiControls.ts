@@ -11,7 +11,13 @@
     const vscode: VSCodeAPI = acquireVsCodeApi();
     document.getElementById("refreshAtlasButton")!.addEventListener("click", () => {
         vscode.postMessage({
-            type: "refreshAtlas",
+            type: "refresh",
+        });
+    });
+
+    document.getElementById("changeSourceButton")!.addEventListener("click", () => {
+        vscode.postMessage({
+            type: "change_source",
         });
     });
 })();
