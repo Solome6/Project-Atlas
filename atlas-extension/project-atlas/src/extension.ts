@@ -169,6 +169,15 @@ async function getAtlasContent(projectJSON?: ProjectJSON) {
                 background-color: var(--bgColor);
             }
 
+            body {
+                position: relative;
+                z-index: -2;
+                width: 100vw;
+                height: 100vh;
+                padding: 0;
+                margin: 0;
+            }
+
             div.classBox {
                 margin: 10px;
                 overflow: scroll;
@@ -186,7 +195,7 @@ async function getAtlasContent(projectJSON?: ProjectJSON) {
 
             foreignObject {
                 position: relative;
-                z-index: 0;
+                z-index: -1;
             }
 
             .scrollBoxBackground {
