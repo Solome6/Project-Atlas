@@ -1,3 +1,6 @@
+type HTMLSVG = HTMLElement & SVGElement;
+type HTMLGroup = HTMLElement & SVGGElement;
+
 (() => {
     interface Camera {
         x: number;
@@ -23,6 +26,8 @@
     const DEFAULT_Y = 0;
     /** The default camera scale. */
     const DEFAULT_SCALE = 0.5;
+    /** The class name for disabling select */
+    const DISABLE_SELECT = "disable-select";
 
     /** An object representing the current transformation on the view. */
     const camera = initializeCamera();
@@ -34,11 +39,11 @@
      */
     let panning = true;
 
-    const globalSVG = document.getElementById("globalSVG")!;
-    const translateSVG = document.getElementById("translateSVG")!;
-    const scaleGroup = document.getElementById("scaleGroup")!;
-    const xCoords = document.getElementById("x-coord")!;
-    const yCoords = document.getElementById("y-coord")!;
+    const globalSVG = document.getElementById("globalSVG")! as HTMLSVG;
+    const translateSVG = document.getElementById("translateSVG")! as HTMLSVG;
+    const scaleGroup = document.getElementById("scaleGroup")! as HTMLGroup;
+    const xCoordsElement = document.getElementById("x-coord")! as HTMLSpanElement;
+    const yCoordsElement = document.getElementById("y-coord")! as HTMLSpanElement;
 
     /**
      * A helper function for retrieving the initial camera state.
@@ -60,8 +65,8 @@
     function applyCamera(camera: Camera) {
         translateSVG.setAttribute("x", String(camera.x));
         translateSVG.setAttribute("y", String(camera.y));
-        xCoords.innerText = formatValue(-camera.x);
-        yCoords.innerText = formatValue(camera.y);
+        xCoordsElement.textContent = formatValue(-camera.x);
+        yCoordsElement.textContent = formatValue(camera.y);
         scaleGroup.setAttribute("transform", `scale(${camera.scale})`);
     }
 
@@ -161,13 +166,15 @@
 
     /**-----Event Listeners-----*/
 
-    window.addEventListener("mouseleave", () => {
+    document.addEventListener("mouseleave", () => {
         globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
     });
     globalSVG.addEventListener("mousedown", () => {
+        globalSVG.classList.add(DISABLE_SELECT);
         globalSVG.addEventListener("mousemove", mouseTranslationHandler);
     });
     globalSVG.addEventListener("mouseup", () => {
+        globalSVG.classList.remove(DISABLE_SELECT);
         globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
     });
 

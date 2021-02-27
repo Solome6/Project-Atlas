@@ -158,6 +158,10 @@ async function getAtlasContent(projectJSON?: ProjectJSON) {
                 --textSelectionFgColor: var(--vscode-editor-selectionForeground);
             }
 
+            .disable-select {
+                user-select: none;
+            }
+
             html,
             body {
                 width: 100%;
