@@ -51,6 +51,11 @@ public class FunctionGroup implements IExpressionParentGroup {
         }
     }
 
+    /**
+     * Helper method to reduce code duplication of adding an expression to this node.
+     * 
+     * @param expr the Method Call Expression to be used to initializes a new ExpressionGroup node
+     */
     private void addExpression(MethodCallExpr expr) {
         ExpressionGroup expressionGroup = new ExpressionGroup(expr, this);
         this.children.add(expressionGroup);

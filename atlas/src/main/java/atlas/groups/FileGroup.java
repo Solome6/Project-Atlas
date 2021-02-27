@@ -90,16 +90,6 @@ public class FileGroup implements IGroup {
         return this.source;
     }
 
-    private void setParentPackage(String pckg) {
-        int finalPeriod = 0;
-        for (int i = 0; i < pckg.length(); i++) {
-            if (pckg.charAt(i) == '.') {
-                finalPeriod = i;
-            }
-        }
-        this.parent.setPackage(pckg.substring(0, finalPeriod));
-    }
-
     @Override
     public List<? extends IGroup> getChildrenGroup() {
         return this.children;

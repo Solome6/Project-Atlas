@@ -17,6 +17,12 @@ public class ExpressionGroup implements IExpressionParentGroup, IReferencer {
     private final CodeRegion pointsFrom;
     private final List<ExpressionGroup> children;
 
+    /**
+     * Initializes an expression group based on the provided method and parent and checks for any child expressions.
+     * 
+     * @param method The Expression that this ExpressionGroup represents
+     * @param parent The parent function that this expression is in
+     */
     public ExpressionGroup(MethodCallExpr method, IExpressionParentGroup parent) {
         this.parent = parent;
         this.children = new ArrayList<>();
@@ -43,23 +49,6 @@ public class ExpressionGroup implements IExpressionParentGroup, IReferencer {
                 this.children.add(new ExpressionGroup(methodCalls.get(i), this));
             }
         }
-    }
-
-    /**
-     * Formats the signature of the location of the location the expression points to.
-     * @param sig The full signature of the location this expression points to
-     * @return The String of the shortened signature
-     */
-    private String formatSignature(String sig) {
-        int finalPeriod = 0;
-        for (int i = 0; i < sig.length(); i++) {
-            if (sig.charAt(i) == '.') {
-                finalPeriod = i;
-            } else if (sig.charAt(i) == '(') {
-                break;
-            }
-        }
-        return sig.substring(0, finalPeriod);
     }
 
     @Override
