@@ -1,8 +1,17 @@
 :root {
+    /* Colors */
     --bgColor: var(--vscode-editor-background);
     --textColor: var(--vscode-editor-foreground);
     --textSelectionBgColor: var(--vscode-editor-selectionBackground);
     --textSelectionFgColor: var(--vscode-editor-selectionForeground);
+
+    /* Z-Indices */
+    --zIndexUI: 10;
+    --zIndexModal: 100;
+}
+
+.disable-select {
+    user-select: none;
 }
 
 html,
@@ -10,6 +19,15 @@ body {
     width: 100%;
     height: 100%;
     background-color: var(--bgColor);
+}
+
+body {
+    position: relative;
+    z-index: -2;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
 }
 
 div.classBox {
@@ -29,7 +47,7 @@ div.classBox {
 
 foreignObject {
     position: relative;
-    z-index: 0;
+    z-index: -1;
 }
 
 .scrollBoxBackground {
@@ -90,11 +108,20 @@ svg {
 }
 
 #refreshAtlasButton.ui {
-    --margin: 15px;
-    top: var(--margin);
-    right: var(--margin);
+    --margin-top: 15px;
+    --margin-right: 15px;
+}
 
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+#changeSourceButton.ui {
+    --margin-top: calc(15px + 2rem + 10px);
+    --margin-right: 15px;
+}
+
+#refreshAtlasButton.ui, #changeSourceButton.ui {
+    top: var(--margin-top);
+    right: var(--margin-right);
+
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 1.1rem;
     color: var(--textColor);
 
@@ -117,7 +144,7 @@ svg {
     bottom: 0;
     right: 0;
 
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 0.75rem;
     color: var(--textSelectionFgColor);
 
