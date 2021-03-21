@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { FaExchangeAlt } from "react-icons/fa";
+import { HiOutlineRefresh } from "react-icons/hi";
 import styled from "styled-components";
 import { CameraIndicator } from "./components/CameraIndicator";
 import { Modal } from "./components/Modal";
@@ -33,40 +35,55 @@ const GlobalUIView = styled.div`
     }
 `;
 
-const UIButtonList = styled.div`
+const UITopBar = styled.div`
     // Layout
-    position: absolute;
-    top: 0;
-    right: 0;
+    box-sizing: content-box;
+    width: 100%;
+    padding: 0;
 
-    height: 300px;
-    padding: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
 
-    & > * + * {
-        // All sibling children
-        margin-top: 15px;
-    }
+    border-top: 3px solid var(--bgColor);
 
-    //Behavior
-    overflow-y: auto;
+    // Behavior
+    z-index: var(--zIndexTopBar);
+
+    background-color: var(--bgColorSecondary);
 `;
 
-const UIButton = styled.button`
-    // Layout
-    width: 10rem;
-    height: 2rem;
+const TopBarButtonContainer = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
 
-    display: block;
+    overflow-x: overlay;
 
-    // Appearance
+    background-color: inherit;
+`;
+
+const TopBarLogoContainer = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`;
+
+const TopBarButton = styled.button`
+    border: none;
+    font-size: 1.1rem;
+
+    margin: 0;
+    padding: 7px 15px;
+
+    background-color: inherit;
     color: var(--textColor);
-    background: var(--bgColor);
-    background-image: linear-gradient(to bottom, transparent, rgb(0, 0, 0, 0.33));
 
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-    font-size: 1.05rem;
-
-    outline: white 1px solid;
+    :last-of-type {
+        padding-right: 20px;
+    }
 `;
 
 const ModalWrapper = styled.div`
@@ -80,6 +97,7 @@ const ModalWrapper = styled.div`
 
     display: flex;
 
+    // Behavior
     z-index: var(--zIndexModal);
 
     // Appearance
@@ -247,7 +265,7 @@ export function AtlasApp() {
             setPanning(false);
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
-        const globalSVGWheelHandler = (wheelEvent) => {
+        const globalSVGWheelHandler = (wheelEvent: WheelEvent) => {
             wheelEvent.preventDefault();
             if (wheelEvent.ctrlKey) {
                 wheelZoomHandler(wheelEvent);
@@ -298,6 +316,31 @@ export function AtlasApp() {
 
     return (
         <ModalsContext.Provider value={modalsManager}>
+            <UITopBar>
+                <TopBarLogoContainer>
+                    <img
+                        alt="Project Atlas Logo"
+                        src={window.assets["logo"]}
+                        style={{ height: "28px", marginLeft: "12px" }}
+                    ></img>
+                </TopBarLogoContainer>
+                <TopBarButtonContainer>
+                    <TopBarButton
+                        title="Change Source"
+                        aria-label="Change Source"
+                        onClick={changeSourceHandler}
+                    >
+                        <FaExchangeAlt></FaExchangeAlt>
+                    </TopBarButton>
+                    <TopBarButton
+                        title="Refresh Atlas"
+                        aria-label="Refresh Atlas"
+                        onClick={refreshHandler}
+                    >
+                        <HiOutlineRefresh></HiOutlineRefresh>
+                    </TopBarButton>
+                </TopBarButtonContainer>
+            </UITopBar>
             <GlobalUIView>
                 {modals.length > 0 && (
                     <ModalWrapper>
@@ -306,10 +349,10 @@ export function AtlasApp() {
                         </Modal>
                     </ModalWrapper>
                 )}
-                <UIButtonList>
+                {/* <UIButtonList>
                     <UIButton onClick={refreshHandler}>Refresh Atlas</UIButton>
                     <UIButton onClick={changeSourceHandler}>Change Source</UIButton>
-                </UIButtonList>
+                </UIButtonList> */}
                 <CameraIndicator x={cameraX} y={cameraY}></CameraIndicator>
             </GlobalUIView>
             <svg id="globalSVG" width="100%" height="100%">

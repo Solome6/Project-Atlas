@@ -33,7 +33,7 @@ const StyledModal = styled.div`
     display: flex;
     flex-direction: column;
 
-    padding: 15px;
+    padding: 10px;
 
     // Behavior
     overflow-y: auto;
@@ -96,7 +96,7 @@ export function Modal({ size, children, id, closeable = true, stickyClose = fals
                     <CloseButton onClick={() => modalsManager.removeModal(id)}>X</CloseButton>
                 </CloseButtonContainer>
             )}
-            <div>{children}</div>
+            <div style={{ padding: "0 15px" }}>{children}</div>
         </StyledModal>
     );
 }

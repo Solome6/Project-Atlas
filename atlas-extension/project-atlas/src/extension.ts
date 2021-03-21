@@ -7,7 +7,7 @@ import {
     APIMessage,
     APIMessageType,
     WebViewMessage,
-    WebViewMessageType,
+    WebViewMessageType
 } from "./app/models/messages";
 import { ProjectJSON } from "./app/models/project";
 import { getFileContent, selectFolder, writeFile } from "./services/fs.service";
@@ -50,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
                     enableFindWidget: true,
                 },
             );
+            panel.iconPath = getExtensionAssetURI("short_logo.png");
 
             let projectJSONString: string;
             try {
@@ -107,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
     ): (message: WebViewMessage) => void {
         return async (message: WebViewMessage) => {
             vscode.window.showInformationMessage("Message Received!");
-            console.log(message);
+
             switch (message.type) {
                 case WebViewMessageType.ChangeSource: {
                     srcDirRef.current = (
@@ -132,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
             <script>
                 var vscode = acquireVsCodeApi();
                 var assets = {
-                    logo: "${getAssetURI(webview, "logo.png")}"
+                    logo: "${getWebviewAssetURI(webview, "logo.png")}"
                 };
             </script>
         </head>
@@ -149,7 +150,11 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    function getAssetURI(webview: Webview, fileName: string): vscode.Uri {
+    function getExtensionAssetURI(fileName: string): vscode.Uri {
+        return vscode.Uri.file(path.join(context.extensionPath, "src", "assets", fileName));
+    }
+
+    function getWebviewAssetURI(webview: Webview, fileName: string): vscode.Uri {
         return webview.asWebviewUri(
             vscode.Uri.file(path.join(context.extensionPath, "src", "assets", fileName)),
         );

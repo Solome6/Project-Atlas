@@ -1,13 +1,22 @@
 :root {
     /* Colors */
     --bgColor: var(--vscode-editor-background);
+    --bgColorSecondary: var(--vscode-editorWidget-background);
     --textColor: var(--vscode-editor-foreground);
     --textSelectionBgColor: var(--vscode-editor-selectionBackground);
     --textSelectionFgColor: var(--vscode-editor-selectionForeground);
 
     /* Z-Indices */
+    --zIndexTopBar: 5;
     --zIndexUI: 10;
     --zIndexModal: 100;
+}
+
+button:hover {
+    filter: brightness(0.9);
+}
+button:active {
+    filter: brightness(0.75);
 }
 
 .disable-select {
@@ -20,6 +29,11 @@ body,
     width: 100vw;
     height: 100vh;
     background-color: var(--bgColor);
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
 }
 
 body {
