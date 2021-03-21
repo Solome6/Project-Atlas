@@ -14,6 +14,7 @@ interface ModalOptions {
     height?: "auto" | ModalSize;
     // clickThrough?: boolean;
     closeable?: boolean;
+    stickyClose?: boolean;
     // removeDispatcher: (removeModal: () => void) => void;
 }
 

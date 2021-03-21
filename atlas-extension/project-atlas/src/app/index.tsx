@@ -26,29 +26,3 @@ declare global {
 }
 
 ReactDOM.render(<AtlasApp />, document.getElementById("root"));
-
-// function Test() {
-//     const countRef = React.useRef(0);
-//     const [count, setCount] = React.useState(countRef.current);
-
-//     React.useEffect(() => {
-//         let timer = setInterval(() => {
-//             setCount(++countRef.current);
-//         }, 1000);
-
-//         console.log(vscode);
-
-//         return () => {
-//             clearInterval(timer);
-//         };
-//     }, [countRef]);
-
-//     return (
-//         <div>
-//             <div>Hello. This is rendered with React.</div>
-//             <div>
-//                 State updates with react: {count} rerender{count !== 1 ? "s" : ""}
-//             </div>
-//         </div>
-//     );
-// }

@@ -117,10 +117,16 @@ export function AtlasApp() {
             content: (
                 <div>
                     <div>
-                        <img src={window.assets["logo"]}></img>
+                        <img
+                            style={{ display: "block", margin: "auto" }}
+                            src={window.assets["logo"]}
+                        ></img>
                     </div>
-                    <div style={{ textAlign: "center" }}>
+                    <div style={{ textAlign: "center", marginTop: "25px" }}>
                         Welcome to Project Atlas. Press the X to begin exploring.
+                    </div>
+                    <div style={{ marginTop: "1000px" }}>
+                        I hope whoever is reading this has a great day :)
                     </div>
                 </div>
             ),
@@ -288,7 +294,7 @@ export function AtlasApp() {
 
     const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
     const changeSourceHandler = () =>
-        window.vscode.postMessage({ type: WebViewMessageType.Refresh });
+        window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
 
     return (
         <ModalsContext.Provider value={modalsManager}>

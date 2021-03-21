@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
                 projectJSONString = await getFileContent(CACHE_LOCATION);
                 if (projectJSONString) {
                     const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                    panel.webview.html = await getAtlasContent(panel.webview, projectJSON);
+                    panel.webview.html = await getAtlasWebviewContent(panel.webview, projectJSON);
                 } else {
                     throw new Error("Cache is empty.");
                 }
@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
                 parseSourceAndUpdatePanel(panel, srcDirRef);
             }
 
-            panel.webview.html = await getAtlasContent(panel.webview);
+            panel.webview.html = await getAtlasWebviewContent(panel.webview);
             panel.webview.postMessage({
                 type: APIMessageType.NewJSONData,
                 data: { fileBoxes: [], arrows: [] },
@@ -78,17 +78,6 @@ export function activate(context: vscode.ExtensionContext) {
             panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, srcDirRef));
         }),
     );
-
-    function getRootDir() {
-        const dir = vscode.workspace.workspaceFolders;
-        if (dir === undefined) {
-            vscode.window.showErrorMessage(
-                "A workspace must be opened before running Project Atlas!",
-            );
-        } else {
-            return dir[0].uri.fsPath;
-        }
-    }
 
     /**
      * Parses the current source directory and updates the panels HTML string.
@@ -105,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
 
                 const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                panel.webview.html = await getAtlasContent(panel.webview, projectJSON);
+                panel.webview.html = await getAtlasWebviewContent(panel.webview, projectJSON);
             } catch (error) {
                 vscode.window.showErrorMessage(error);
             }
@@ -118,7 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
     ): (message: WebViewMessage) => void {
         return async (message: WebViewMessage) => {
             vscode.window.showInformationMessage("Message Received!");
-
+            console.log(message);
             switch (message.type) {
                 case WebViewMessageType.ChangeSource: {
                     srcDirRef.current = (
@@ -135,43 +124,35 @@ export function activate(context: vscode.ExtensionContext) {
         };
     }
 
-    async function getAtlasContent(webview: vscode.Webview, projectJSON?: ProjectJSON) {
-        return `<html>
+    async function getAtlasWebviewContent(webview: vscode.Webview, projectJSON?: ProjectJSON) {
+        return `<html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Project Atlas</title>
-
-            <style>
-                html, body, #root {
-                    width: 100vw;
-                    height: 100vh;
-                }
-            </style>
-
             <script>
                 var vscode = acquireVsCodeApi();
                 var assets = {
-                    logo: "${webview.asWebviewUri(
-                        vscode.Uri.file(
-                            path.join(context.extensionPath, "src", "assets", "logo.png"),
-                        ),
-                    )}"
+                    logo: "${getAssetURI(webview, "logo.png")}"
                 };
             </script>
         </head>
-
         <body>
             <div id="root"></div>
-            <script>
-                ${
-                    (await getFileContent("./app/app.js", {
-                        logError: "Cannot find React script",
-                    })) ?? ""
-                }
-            </script>
+            <script src="${getScriptURI("./app/app.js")}"></script>
         </body>
         </html>`;
+    }
+
+    function getScriptURI(filePath: string): vscode.Uri {
+        return vscode.Uri.file(path.join(__dirname, filePath)).with({
+            scheme: "vscode-resource",
+        });
+    }
+
+    function getAssetURI(webview: Webview, fileName: string): vscode.Uri {
+        return webview.asWebviewUri(
+            vscode.Uri.file(path.join(context.extensionPath, "src", "assets", fileName)),
+        );
     }
 }
 
