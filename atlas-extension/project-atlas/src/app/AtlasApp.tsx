@@ -121,6 +121,10 @@ const DEFAULT_SCALE = 0.5;
 /** The class name for disabling select */
 const DISABLE_SELECT = "disable-select";
 
+const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
+const changeSourceHandler = () =>
+    window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
+
 export function AtlasApp() {
     const modalCountRef = useRef(0);
 
@@ -307,10 +311,6 @@ export function AtlasApp() {
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
     }, [cameraRef]);
-
-    const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
-    const changeSourceHandler = () =>
-        window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
 
     return (
         <ModalsContext.Provider value={modalsManager}>
