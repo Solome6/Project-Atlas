@@ -10,6 +10,8 @@ import ModalsContext, {
     ModalsManager,
     modalsReducer,
 } from "./contexts/Modal";
+import { useRefState } from "./hooks/customHooks";
+import { Camera } from "./models/camera";
 import { APIMessage, APIMessageType, WebViewMessageType } from "./models/Messages";
 import { clamp } from "./utils/mathUtils";
 
@@ -101,7 +103,7 @@ const ModalWrapper = styled.div`
     z-index: var(--zIndexModal);
 
     // Appearance
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.33);
 `;
 
 /** The minimum scale of the camera. */
@@ -122,11 +124,14 @@ const DISABLE_SELECT = "disable-select";
 export function AtlasApp() {
     const modalCountRef = useRef(0);
 
-    // Camera States
-    const [cameraX, setCameraX] = useState(DEFAULT_X);
-    const [cameraY, setCameraY] = useState(DEFAULT_Y);
-    const [cameraZoom, setCameraZoom] = useState(DEFAULT_SCALE);
-    const [panning, setPanning] = useState(false);
+    // Camera State
+    const [cameraRef, setCamera] = useRefState<Camera>({
+        x: DEFAULT_X,
+        y: DEFAULT_X,
+        scale: DEFAULT_SCALE,
+        isPanning: false,
+        isPanningEnabled: true,
+    });
 
     // Modal States
     const [modals, dispatch] = useReducer<typeof modalsReducer>(modalsReducer, [
@@ -197,24 +202,20 @@ export function AtlasApp() {
 
         /**
          * Updates the translational values of the view's camera.
-         *
          * *Note: This helper functions helps bridge the logic of*
          * *wheel-based and click-based translations. Moreover, future*
          * *constraints to translation logic can be placed here.*
-         *
          * @param dx The difference in the x-axis.
          * @param dy The difference in the y-axis.
          */
         const translateCamera = (dx: number, dy: number) => {
-            const newX = cameraX + dx;
-            const newY = cameraY + dy;
-            setCameraX(Number(newX.toFixed(2)));
-            setCameraY(Number(newY.toFixed(2)));
+            const newX = cameraRef.current.x + dx;
+            const newY = cameraRef.current.y + dy;
+            setCamera({ x: newX, y: newY });
         };
 
         /**
          * The wheel-based zoom gesture handler.
-         *
          * @param wheelEvent The triggered wheel event.
          */
         const wheelZoomHandler = (wheelEvent: WheelEvent) => {
@@ -224,12 +225,12 @@ export function AtlasApp() {
             } else {
                 factor = 1 / SCALE_MULTIPLIER;
             }
-            const newScale = clamp(MIN_SCALE, cameraZoom * factor, MAX_SCALE);
-            if (newScale !== cameraZoom) {
-                setCameraZoom(newScale);
+            const newScale = clamp(MIN_SCALE, cameraRef.current.scale * factor, MAX_SCALE);
+            if (newScale !== cameraRef.current.scale) {
+                setCamera({ scale: newScale });
                 const relativeShift = factor - 1;
-                const dx = (wheelEvent.clientX - cameraX) * relativeShift;
-                const dy = (wheelEvent.clientY - cameraY) * relativeShift;
+                const dx = (wheelEvent.clientX - cameraRef.current.x) * relativeShift;
+                const dy = (wheelEvent.clientY - cameraRef.current.y) * relativeShift;
                 translateCamera(-dx, -dy);
             }
         };
@@ -239,8 +240,11 @@ export function AtlasApp() {
          * @param mouseEvent The triggered mouse event.
          */
         const mouseTranslationHandler = (mouseEvent: MouseEvent) => {
-            setPanning(true);
-            translateCamera(mouseEvent.movementX, mouseEvent.movementY);
+            if (cameraRef.current.isPanningEnabled) {
+                setCamera({ isPanning: true });
+                translateCamera(mouseEvent.movementX, mouseEvent.movementY);
+                setCamera({ isPanning: false });
+            }
         };
 
         /**
@@ -248,9 +252,11 @@ export function AtlasApp() {
          * @param wheelEvent The triggered wheel event.
          */
         const wheelPanHandler = (wheelEvent: WheelEvent) => {
-            // setPanning(true);
-            translateCamera(-wheelEvent.deltaX, -wheelEvent.deltaY);
-            setPanning(false);
+            if (cameraRef.current.isPanningEnabled) {
+                setCamera({ isPanning: true });
+                translateCamera(-wheelEvent.deltaX, -wheelEvent.deltaY);
+                setCamera({ isPanning: false });
+            }
         };
 
         const documentMouseLeaveHandler = () => {
@@ -262,7 +268,6 @@ export function AtlasApp() {
         };
         const globalSVGMouseUpHandler = () => {
             globalSVG.classList.remove(DISABLE_SELECT);
-            setPanning(false);
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
         const globalSVGWheelHandler = (wheelEvent: WheelEvent) => {
@@ -276,22 +281,15 @@ export function AtlasApp() {
         const globalSVGClickHandler = (mouseEvent) => {
             switch (mouseEvent.detail) {
                 case Mouse.DoubleClick: {
-                    setCameraX(DEFAULT_X);
-                    setCameraY(DEFAULT_Y);
+                    setCamera({ x: DEFAULT_X, y: DEFAULT_Y });
                     break;
                 }
                 case Mouse.TripleClick: {
-                    setCameraX(DEFAULT_X);
-                    setCameraY(DEFAULT_Y);
-                    setCameraZoom(DEFAULT_SCALE);
+                    setCamera({ x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE });
                     break;
                 }
             }
         };
-
-        if (panning) {
-            globalSVGMouseDownHandler();
-        }
 
         /**-----Event Listeners-----*/
         document.addEventListener("mouseleave", documentMouseLeaveHandler);
@@ -308,7 +306,7 @@ export function AtlasApp() {
             globalSVG.removeEventListener("click", globalSVGClickHandler);
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
-    }, [[cameraX, cameraY, cameraZoom]]);
+    }, [cameraRef]);
 
     const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
     const changeSourceHandler = () =>
@@ -353,11 +351,11 @@ export function AtlasApp() {
                     <UIButton onClick={refreshHandler}>Refresh Atlas</UIButton>
                     <UIButton onClick={changeSourceHandler}>Change Source</UIButton>
                 </UIButtonList> */}
-                <CameraIndicator x={cameraX} y={cameraY}></CameraIndicator>
+                <CameraIndicator x={cameraRef.current.x} y={cameraRef.current.y}></CameraIndicator>
             </GlobalUIView>
             <svg id="globalSVG" width="100%" height="100%">
-                <svg id="translateSVG" x={cameraX} y={cameraY}>
-                    <g id="scaleGroup" transform={`scale(${cameraZoom})`}>
+                <svg id="translateSVG" x={cameraRef.current.x} y={cameraRef.current.y}>
+                    <g id="scaleGroup" transform={`scale(${cameraRef.current.scale})`}>
                         <rect width="100" height="100" fill="red"></rect>
                     </g>
                 </svg>
