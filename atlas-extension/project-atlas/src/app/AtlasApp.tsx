@@ -302,6 +302,7 @@ export function AtlasApp() {
         globalSVG.addEventListener("wheel", globalSVGWheelHandler);
         globalSVG.addEventListener("click", globalSVGClickHandler);
 
+        /**-----Event Listeners Cleanup-----*/
         return () => {
             document.removeEventListener("mouseleave", documentMouseLeaveHandler);
             globalSVG.removeEventListener("mousedown", globalSVGMouseDownHandler);
@@ -347,10 +348,6 @@ export function AtlasApp() {
                         </Modal>
                     </ModalWrapper>
                 )}
-                {/* <UIButtonList>
-                    <UIButton onClick={refreshHandler}>Refresh Atlas</UIButton>
-                    <UIButton onClick={changeSourceHandler}>Change Source</UIButton>
-                </UIButtonList> */}
                 <CameraIndicator x={cameraRef.current.x} y={cameraRef.current.y}></CameraIndicator>
             </GlobalUIView>
             <svg id="globalSVG" width="100%" height="100%">
