@@ -3,6 +3,7 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { HiOutlineRefresh } from "react-icons/hi";
 import styled from "styled-components";
 import { CameraIndicator } from "./components/CameraIndicator";
+import { InfiniteGrid } from "./components/InfiniteGrid";
 import { Modal } from "./components/Modal";
 import ModalsContext, {
     ModalActionType,
@@ -11,12 +12,18 @@ import ModalsContext, {
     modalsReducer,
 } from "./contexts/Modal";
 import { useRefState } from "./hooks/customHooks";
-import { Camera } from "./models/camera";
+import {
+    Camera,
+    createDefaultCamera,
+    DEFAULT_CAMERA,
+    MAX_SCALE,
+    MIN_SCALE,
+    SCALE_MULTIPLIER,
+} from "./models/camera";
 import { APIMessage, APIMessageType, WebViewMessageType } from "./models/Messages";
 import { clamp } from "./utils/mathUtils";
 
 type HTMLSVG = HTMLElement & SVGElement;
-type HTMLGroup = HTMLElement & SVGGElement;
 
 enum Mouse {
     SingleClick = 1,
@@ -52,7 +59,9 @@ const UITopBar = styled.div`
     // Behavior
     z-index: var(--zIndexTopBar);
 
+    // Appearance
     background-color: var(--bgColorSecondary);
+    filter: drop-shadow(0 -1px 5px black);
 `;
 
 const TopBarButtonContainer = styled.div`
@@ -106,18 +115,6 @@ const ModalWrapper = styled.div`
     background: rgba(0, 0, 0, 0.33);
 `;
 
-/** The minimum scale of the camera. */
-const MIN_SCALE = 0.05;
-/** The maximum scale of the camera. */
-const MAX_SCALE = 1.5;
-/** The scale multiplier when zooming in. */
-const SCALE_MULTIPLIER = 1.05;
-/** The default horizontal camera translation. */
-const DEFAULT_X = 0;
-/** The default vertical camera translation. */
-const DEFAULT_Y = 0;
-/** The default camera scale. */
-const DEFAULT_SCALE = 0.5;
 /** The class name for disabling select */
 const DISABLE_SELECT = "disable-select";
 
@@ -127,15 +124,10 @@ const changeSourceHandler = () =>
 
 export function AtlasApp() {
     const modalCountRef = useRef(0);
+    const initialCamera = useMemo(createDefaultCamera, []);
 
     // Camera State
-    const [cameraRef, setCamera] = useRefState<Camera>({
-        x: DEFAULT_X,
-        y: DEFAULT_X,
-        scale: DEFAULT_SCALE,
-        isPanning: false,
-        isPanningEnabled: true,
-    });
+    const [{ current: camera }, setCamera] = useRefState<Camera>(initialCamera);
 
     // Modal States
     const [modals, dispatch] = useReducer<typeof modalsReducer>(modalsReducer, [
@@ -167,7 +159,7 @@ export function AtlasApp() {
     useEffect(() => {
         const newProjectEventHandler = ({ data: message }: MessageEvent<APIMessage>) => {
             if (message.type === APIMessageType.NewJSONData) {
-                console.log(message.data);
+                console.log("messsage:", message.data);
                 setProjectJSON(message.data);
             }
         };
@@ -213,8 +205,8 @@ export function AtlasApp() {
          * @param dy The difference in the y-axis.
          */
         const translateCamera = (dx: number, dy: number) => {
-            const newX = cameraRef.current.x + dx;
-            const newY = cameraRef.current.y + dy;
+            const newX = camera.x + dx;
+            const newY = camera.y + dy;
             setCamera({ x: newX, y: newY });
         };
 
@@ -229,12 +221,12 @@ export function AtlasApp() {
             } else {
                 factor = 1 / SCALE_MULTIPLIER;
             }
-            const newScale = clamp(MIN_SCALE, cameraRef.current.scale * factor, MAX_SCALE);
-            if (newScale !== cameraRef.current.scale) {
+            const newScale = clamp(MIN_SCALE, camera.scale * factor, MAX_SCALE);
+            if (newScale !== camera.scale) {
                 setCamera({ scale: newScale });
                 const relativeShift = factor - 1;
-                const dx = (wheelEvent.clientX - cameraRef.current.x) * relativeShift;
-                const dy = (wheelEvent.clientY - cameraRef.current.y) * relativeShift;
+                const dx = (wheelEvent.clientX - camera.x) * relativeShift;
+                const dy = (wheelEvent.clientY - camera.y) * relativeShift;
                 translateCamera(-dx, -dy);
             }
         };
@@ -244,7 +236,7 @@ export function AtlasApp() {
          * @param mouseEvent The triggered mouse event.
          */
         const mouseTranslationHandler = (mouseEvent: MouseEvent) => {
-            if (cameraRef.current.isPanningEnabled) {
+            if (camera.isPanningEnabled) {
                 setCamera({ isPanning: true });
                 translateCamera(mouseEvent.movementX, mouseEvent.movementY);
                 setCamera({ isPanning: false });
@@ -256,7 +248,7 @@ export function AtlasApp() {
          * @param wheelEvent The triggered wheel event.
          */
         const wheelPanHandler = (wheelEvent: WheelEvent) => {
-            if (cameraRef.current.isPanningEnabled) {
+            if (camera.isPanningEnabled) {
                 setCamera({ isPanning: true });
                 translateCamera(-wheelEvent.deltaX, -wheelEvent.deltaY);
                 setCamera({ isPanning: false });
@@ -285,11 +277,15 @@ export function AtlasApp() {
         const globalSVGClickHandler = (mouseEvent) => {
             switch (mouseEvent.detail) {
                 case Mouse.DoubleClick: {
-                    setCamera({ x: DEFAULT_X, y: DEFAULT_Y });
+                    setCamera({ x: DEFAULT_CAMERA.x, y: DEFAULT_CAMERA.y });
                     break;
                 }
                 case Mouse.TripleClick: {
-                    setCamera({ x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE });
+                    setCamera({
+                        x: DEFAULT_CAMERA.x,
+                        y: DEFAULT_CAMERA.y,
+                        scale: DEFAULT_CAMERA.scale,
+                    });
                     break;
                 }
             }
@@ -304,6 +300,7 @@ export function AtlasApp() {
 
         /**-----Event Listeners Cleanup-----*/
         return () => {
+            console.log("cleanup");
             document.removeEventListener("mouseleave", documentMouseLeaveHandler);
             globalSVG.removeEventListener("mousedown", globalSVGMouseDownHandler);
             globalSVG.removeEventListener("mouseup", globalSVGMouseUpHandler);
@@ -311,7 +308,7 @@ export function AtlasApp() {
             globalSVG.removeEventListener("click", globalSVGClickHandler);
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
-    }, [cameraRef]);
+    }, [camera]);
 
     return (
         <ModalsContext.Provider value={modalsManager}>
@@ -321,7 +318,7 @@ export function AtlasApp() {
                         alt="Project Atlas Logo"
                         src={window.assets["logo"]}
                         style={{ height: "28px", marginLeft: "12px" }}
-                    ></img>
+                    />
                 </TopBarLogoContainer>
                 <TopBarButtonContainer>
                     <TopBarButton
@@ -329,14 +326,14 @@ export function AtlasApp() {
                         aria-label="Change Source"
                         onClick={changeSourceHandler}
                     >
-                        <FaExchangeAlt></FaExchangeAlt>
+                        <FaExchangeAlt />
                     </TopBarButton>
                     <TopBarButton
                         title="Refresh Atlas"
                         aria-label="Refresh Atlas"
                         onClick={refreshHandler}
                     >
-                        <HiOutlineRefresh></HiOutlineRefresh>
+                        <HiOutlineRefresh />
                     </TopBarButton>
                 </TopBarButtonContainer>
             </UITopBar>
@@ -348,11 +345,12 @@ export function AtlasApp() {
                         </Modal>
                     </ModalWrapper>
                 )}
-                <CameraIndicator x={cameraRef.current.x} y={cameraRef.current.y}></CameraIndicator>
+                <CameraIndicator x={camera.x} y={camera.y} />
             </GlobalUIView>
-            <svg id="globalSVG" width="100%" height="100%">
-                <svg id="translateSVG" x={cameraRef.current.x} y={cameraRef.current.y}>
-                    <g id="scaleGroup" transform={`scale(${cameraRef.current.scale})`}>
+            <InfiniteGrid x={camera.x} y={camera.y} scale={camera.scale} key="grid" />
+            <svg id="globalSVG" width="100%" height="100%" style={{ zIndex: 1 }}>
+                <svg x={camera.x} y={camera.y}>
+                    <g transform={`scale(${camera.scale})`}>
                         <rect width="100" height="100" fill="red"></rect>
                     </g>
                 </svg>

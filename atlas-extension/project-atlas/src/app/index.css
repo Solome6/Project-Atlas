@@ -7,6 +7,8 @@
     --textSelectionFgColor: var(--vscode-editor-selectionForeground);
 
     /* Z-Indices */
+    --zIndexBody: -2;
+    --zIndexGrid: 0;
     --zIndexTopBar: 5;
     --zIndexUI: 10;
     --zIndexModal: 100;
@@ -38,9 +40,7 @@ body,
 
 body {
     position: relative;
-    z-index: -2;
-    width: 100vw;
-    height: 100vh;
+    z-index: var(--zIndexBody);
     padding: 0;
     margin: 0;
 }

@@ -30,7 +30,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "npm-run-all compile:*",
-        "watch": "concurrently npm:watch:*",
+        "watch": "npm-run-all compile:*",
         "compile:extension": "tsc -p ./",
         "compile:views": "webpack --mode development",
         "watch:extension": "tsc -p ./",

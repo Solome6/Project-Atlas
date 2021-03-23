@@ -127,20 +127,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     async function getAtlasWebviewContent(webview: vscode.Webview, projectJSON?: ProjectJSON) {
         return `<html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <script>
-                var vscode = acquireVsCodeApi();
-                var assets = {
-                    logo: "${getWebviewAssetURI(webview, "logo.png")}"
-                };
-            </script>
-        </head>
-        <body>
-            <div id="root"></div>
-            <script src="${getScriptURI("./app/app.js")}"></script>
-        </body>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <script>
+                    var vscode = acquireVsCodeApi();
+                    var assets = {
+                        logo: "${getWebviewAssetURI(webview, "logo.png")}"
+                    };
+                </script>
+                <script src="${getScriptURI("./app/app.js")}" defer></script>
+            </head>
+            <body>
+                <div id="root"></div>
+            </body>
         </html>`;
     }
 

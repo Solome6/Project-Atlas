@@ -57,7 +57,6 @@ export function modalsReducer(prevState: ModalObject[], action: ModalAction) {
             break;
         }
     }
-    console.log(prevState, newState, action);
     return newState;
 }
 
