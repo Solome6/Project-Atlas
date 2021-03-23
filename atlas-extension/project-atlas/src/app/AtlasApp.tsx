@@ -9,7 +9,7 @@ import ModalsContext, {
     ModalActionType,
     ModalObject,
     ModalsManager,
-    modalsReducer,
+    modalsReducer
 } from "./contexts/Modal";
 import { useRefState } from "./hooks/customHooks";
 import {
@@ -18,7 +18,7 @@ import {
     DEFAULT_CAMERA,
     MAX_SCALE,
     MIN_SCALE,
-    SCALE_MULTIPLIER,
+    SCALE_MULTIPLIER
 } from "./models/camera";
 import { APIMessage, APIMessageType, WebViewMessageType } from "./models/Messages";
 import { clamp } from "./utils/mathUtils";
@@ -214,19 +214,14 @@ export function AtlasApp() {
          * The wheel-based zoom gesture handler.
          * @param wheelEvent The triggered wheel event.
          */
-        const wheelZoomHandler = (wheelEvent: WheelEvent) => {
-            let factor;
-            if (wheelEvent.deltaY < 0) {
-                factor = SCALE_MULTIPLIER;
-            } else {
-                factor = 1 / SCALE_MULTIPLIER;
-            }
+        const wheelZoomHandler = ({ deltaY, clientX, clientY }: WheelEvent) => {
+            const factor = deltaY < 0 ? SCALE_MULTIPLIER : 1 / SCALE_MULTIPLIER;
             const newScale = clamp(MIN_SCALE, camera.scale * factor, MAX_SCALE);
             if (newScale !== camera.scale) {
                 setCamera({ scale: newScale });
                 const relativeShift = factor - 1;
-                const dx = (wheelEvent.clientX - camera.x) * relativeShift;
-                const dy = (wheelEvent.clientY - camera.y) * relativeShift;
+                const dx = (clientX - camera.x) * relativeShift;
+                const dy = (clientY - camera.y) * relativeShift;
                 translateCamera(-dx, -dy);
             }
         };
@@ -235,10 +230,10 @@ export function AtlasApp() {
          * The click-based translation handler.
          * @param mouseEvent The triggered mouse event.
          */
-        const mouseTranslationHandler = (mouseEvent: MouseEvent) => {
+        const mouseTranslationHandler = ({ movementX, movementY }: MouseEvent) => {
             if (camera.isPanningEnabled) {
                 setCamera({ isPanning: true });
-                translateCamera(mouseEvent.movementX, mouseEvent.movementY);
+                translateCamera(movementX, movementY);
                 setCamera({ isPanning: false });
             }
         };
@@ -247,10 +242,10 @@ export function AtlasApp() {
          * The wheel-based translation handler.
          * @param wheelEvent The triggered wheel event.
          */
-        const wheelPanHandler = (wheelEvent: WheelEvent) => {
+        const wheelPanHandler = ({ deltaX, deltaY }: WheelEvent) => {
             if (camera.isPanningEnabled) {
                 setCamera({ isPanning: true });
-                translateCamera(-wheelEvent.deltaX, -wheelEvent.deltaY);
+                translateCamera(-deltaX, -deltaY);
                 setCamera({ isPanning: false });
             }
         };
@@ -300,7 +295,6 @@ export function AtlasApp() {
 
         /**-----Event Listeners Cleanup-----*/
         return () => {
-            console.log("cleanup");
             document.removeEventListener("mouseleave", documentMouseLeaveHandler);
             globalSVG.removeEventListener("mousedown", globalSVGMouseDownHandler);
             globalSVG.removeEventListener("mouseup", globalSVGMouseUpHandler);
