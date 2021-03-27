@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import { HiOutlineRefresh } from "react-icons/hi";
+import { MdSettings } from "react-icons/md";
 import styled from "styled-components";
 import { CameraIndicator } from "./components/CameraIndicator";
+import { DropDownMenu } from "./components/DropDownMenu";
 import { InfiniteGrid } from "./components/InfiniteGrid";
 import { Modal } from "./components/Modal";
+import { WelcomeModal } from "./components/static/WelcomeModal";
 import ModalsContext, {
     ModalActionType,
     ModalObject,
@@ -32,11 +35,14 @@ enum Mouse {
 }
 
 const GlobalUIView = styled.div`
+    // Layout
     width: 100%;
     height: 100%;
 
     position: absolute;
 
+    // Behavior
+    z-index: var(--zIndexUI);
     pointer-events: none;
 
     * {
@@ -126,29 +132,15 @@ export function AtlasApp() {
     const modalCountRef = useRef(0);
     const initialCamera = useMemo(createDefaultCamera, []);
 
+    const [showDropDown, setShowDropDown] = useState(false);
+
     // Camera State
     const [{ current: camera }, setCamera] = useRefState<Camera>(initialCamera);
-
     // Modal States
     const [modals, dispatch] = useReducer<typeof modalsReducer>(modalsReducer, [
         {
             id: -1,
-            content: (
-                <div>
-                    <div>
-                        <img
-                            style={{ display: "block", margin: "auto" }}
-                            src={window.assets["logo"]}
-                        ></img>
-                    </div>
-                    <div style={{ textAlign: "center", marginTop: "25px" }}>
-                        Welcome to Project Atlas. Press the X to begin exploring.
-                    </div>
-                    <div style={{ marginTop: "1000px" }}>
-                        I hope whoever is reading this has a great day :)
-                    </div>
-                </div>
-            ),
+            content: <WelcomeModal />,
             options: { size: "small" },
         },
     ]);
@@ -310,11 +302,20 @@ export function AtlasApp() {
                 <TopBarLogoContainer>
                     <img
                         alt="Project Atlas Logo"
-                        src={window.assets["logo"]}
+                        src={window.staticAssets["logo"]}
                         style={{ height: "28px", marginLeft: "12px" }}
                     />
                 </TopBarLogoContainer>
                 <TopBarButtonContainer>
+                    <TopBarButton
+                        title="Settings"
+                        aria-label="Settings"
+                        onClick={() => setShowDropDown(!showDropDown)}
+                        style={{ position: "relative" }}
+                    >
+                        <MdSettings />
+                    </TopBarButton>
+                    <DropDownMenu visible={showDropDown} />
                     <TopBarButton
                         title="Change Source"
                         aria-label="Change Source"

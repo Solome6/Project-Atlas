@@ -132,7 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <script>
                     var vscode = acquireVsCodeApi();
-                    var assets = {
+                    var staticAssets = {
                         logo: "${getWebviewAssetURI(webview, "logo.png")}"
                     };
                 </script>

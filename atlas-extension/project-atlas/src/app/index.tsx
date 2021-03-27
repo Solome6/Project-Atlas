@@ -9,6 +9,7 @@ interface VSCodeAPI {
 }
 interface Settings {
     __TEST__: string;
+    gridEnabled: boolean;
 }
 
 interface Assets {
@@ -20,8 +21,8 @@ declare global {
         acquireVsCodeApi(): VSCodeAPI;
         vscode: VSCodeAPI;
         initialData: ProjectJSON;
-        settings: Settings;
-        assets: Assets;
+        initialSettings: Settings;
+        staticAssets: Assets;
     }
 }
 

@@ -25,7 +25,7 @@ export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
     const drawGrid = () => {
         const ctx = canvasRef.current.getContext("2d");
         ctx.strokeStyle = getRootVar("--textColor");
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.1;
 
         const { width, height } = canvasRef.current.getBoundingClientRect();
 
@@ -38,7 +38,6 @@ export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
                 (row * (height / 20) + (y % (height / 20))) * (scale / DEFAULT_CAMERA.scale);
             ctx.moveTo(0, yPos);
             ctx.lineTo(width, yPos);
-            ctx.stroke();
         }
 
         // draw column lines
@@ -46,8 +45,9 @@ export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
             const xPos = (col * (width / 20) + (x % (width / 20))) * (scale / DEFAULT_CAMERA.scale);
             ctx.moveTo(xPos, 0);
             ctx.lineTo(xPos, height);
-            ctx.stroke();
         }
+
+        ctx.stroke();
     };
 
     useEffect(() => {
