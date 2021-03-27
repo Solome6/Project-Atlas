@@ -45,6 +45,15 @@ body {
     margin: 0;
 }
 
+div.line {
+    display: flex;
+    flex-direction: row;
+}
+
+.fileBox {
+    outline: 1.5px solid white;
+}
+
 div.classBox {
     margin: 10px;
     overflow: scroll;

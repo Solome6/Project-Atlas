@@ -7,13 +7,9 @@ import { CameraIndicator } from "./components/CameraIndicator";
 import { DropDownMenu } from "./components/DropDownMenu";
 import { InfiniteGrid } from "./components/InfiniteGrid";
 import { Modal } from "./components/Modal";
+import { ProjectVisualizer } from "./components/ProjectVisualizer";
 import { WelcomeModal } from "./components/static/WelcomeModal";
-import ModalsContext, {
-    ModalActionType,
-    ModalObject,
-    ModalsManager,
-    modalsReducer
-} from "./contexts/Modal";
+import ModalsContext, { ModalActionType, ModalObject, ModalsManager, modalsReducer } from "./contexts/Modal";
 import { useRefState } from "./hooks/customHooks";
 import {
     Camera,
@@ -21,10 +17,12 @@ import {
     DEFAULT_CAMERA,
     MAX_SCALE,
     MIN_SCALE,
-    SCALE_MULTIPLIER
+    SCALE_MULTIPLIER,
 } from "./models/camera";
 import { APIMessage, APIMessageType, WebViewMessageType } from "./models/Messages";
+import { Project } from "./models/project";
 import { clamp } from "./utils/mathUtils";
+import { convertToProject } from "./utils/projectUtils";
 
 type HTMLSVG = HTMLElement & SVGElement;
 
@@ -121,18 +119,24 @@ const ModalWrapper = styled.div`
     background: rgba(0, 0, 0, 0.33);
 `;
 
+const Label = styled.label`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+`;
+
 /** The class name for disabling select */
 const DISABLE_SELECT = "disable-select";
 
 const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
-const changeSourceHandler = () =>
-    window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
+const changeSourceHandler = () => window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
 
 export function AtlasApp() {
     const modalCountRef = useRef(0);
     const initialCamera = useMemo(createDefaultCamera, []);
 
     const [showDropDown, setShowDropDown] = useState(false);
+    const [showGrid, setShowGrid] = useState(true);
 
     // Camera State
     const [{ current: camera }, setCamera] = useRefState<Camera>(initialCamera);
@@ -146,13 +150,16 @@ export function AtlasApp() {
     ]);
 
     // JSON State
-    const [projectJSON, setProjectJSON] = useState(window.initialData);
+    const [project, setProject] = useState<Project>(null);
+
+    useEffect(() => {
+        console.log("project:", project);
+    }, [project]);
 
     useEffect(() => {
         const newProjectEventHandler = ({ data: message }: MessageEvent<APIMessage>) => {
             if (message.type === APIMessageType.NewJSONData) {
-                console.log("messsage:", message.data);
-                setProjectJSON(message.data);
+                setProject(convertToProject(message.data));
             }
         };
 
@@ -315,7 +322,27 @@ export function AtlasApp() {
                     >
                         <MdSettings />
                     </TopBarButton>
-                    <DropDownMenu visible={showDropDown} />
+                    <DropDownMenu visible={showDropDown}>
+                        <Label>
+                            <input
+                                type="checkbox"
+                                defaultChecked={showGrid}
+                                onInput={(e) => setShowGrid(!showGrid)}
+                            ></input>
+                            <span>Show Grid</span>
+                        </Label>
+                        <Label style={{ gridColumn: "1 / 3" }}>
+                            <span>Scale</span>
+                            <input
+                                type="range"
+                                min={MIN_SCALE}
+                                max={MAX_SCALE}
+                                value={camera.scale}
+                                step={camera.scale * (SCALE_MULTIPLIER - 1)}
+                                onInput={(e) => setCamera({ scale: Number(e.currentTarget.value) })}
+                            ></input>
+                        </Label>
+                    </DropDownMenu>
                     <TopBarButton
                         title="Change Source"
                         aria-label="Change Source"
@@ -323,11 +350,7 @@ export function AtlasApp() {
                     >
                         <FaExchangeAlt />
                     </TopBarButton>
-                    <TopBarButton
-                        title="Refresh Atlas"
-                        aria-label="Refresh Atlas"
-                        onClick={refreshHandler}
-                    >
+                    <TopBarButton title="Refresh Atlas" aria-label="Refresh Atlas" onClick={refreshHandler}>
                         <HiOutlineRefresh />
                     </TopBarButton>
                 </TopBarButtonContainer>
@@ -342,11 +365,11 @@ export function AtlasApp() {
                 )}
                 <CameraIndicator x={camera.x} y={camera.y} />
             </GlobalUIView>
-            <InfiniteGrid x={camera.x} y={camera.y} scale={camera.scale} key="grid" />
+            {showGrid && <InfiniteGrid x={camera.x} y={camera.y} scale={camera.scale} />}
             <svg id="globalSVG" width="100%" height="100%" style={{ zIndex: 1 }}>
                 <svg x={camera.x} y={camera.y}>
                     <g transform={`scale(${camera.scale})`}>
-                        <rect width="100" height="100" fill="red"></rect>
+                        {project && <ProjectVisualizer project={project} />}
                     </g>
                 </svg>
             </svg>

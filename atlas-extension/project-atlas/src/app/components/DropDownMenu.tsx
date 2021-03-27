@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import styled from "styled-components";
 
 const DropDownMenuContainer = styled.div`
@@ -19,19 +20,13 @@ const DropDownMenuContents = styled.div`
 
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: min-content;
+    grid-template-rows: 25px 25px;
     grid-auto-flow: row;
     gap: 10px 5px;
 
     overflow-y: auto;
 
     background-color: var(--bgColorSecondary);
-`;
-
-const Label = styled.label`
-    display: flex;
-    align-items: stretch;
-    gap: 5px;
 `;
 
 const Arrow = styled.div`
@@ -51,38 +46,14 @@ const Arrow = styled.div`
 
 interface DropDownMenuProps {
     visible?: boolean;
+    children?: ReactNode;
 }
 
-export function DropDownMenu({ visible = true }: DropDownMenuProps) {
+export function DropDownMenu({ visible = true, children }: DropDownMenuProps) {
     return (
         <DropDownMenuContainer style={{ display: visible ? "initial" : "none" }}>
             <Arrow />
-            <DropDownMenuContents>
-                <div>
-                    <Label>
-                        <input type="checkbox"></input>
-                        <span>Show Grid</span>
-                    </Label>
-                </div>
-                <div>
-                    <Label>
-                        <input type="checkbox"></input>
-                        <span>Use High Contrast Colors</span>
-                    </Label>
-                </div>
-                <div>
-                    <Label>
-                        <input type="checkbox"></input>
-                        <span>Prevent Zooming</span>
-                    </Label>
-                </div>
-                <div>
-                    <Label>
-                        <input type="checkbox"></input>
-                        <span>Hide UI</span>
-                    </Label>
-                </div>
-            </DropDownMenuContents>
+            <DropDownMenuContents>{children}</DropDownMenuContents>
         </DropDownMenuContainer>
     );
 }

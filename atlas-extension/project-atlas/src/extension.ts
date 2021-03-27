@@ -3,12 +3,7 @@
 import * as path from "path";
 import { createRef, MutableRefObject } from "react";
 import * as vscode from "vscode";
-import {
-    APIMessage,
-    APIMessageType,
-    WebViewMessage,
-    WebViewMessageType
-} from "./app/models/messages";
+import { APIMessage, APIMessageType, WebViewMessage, WebViewMessageType } from "./app/models/messages";
 import { ProjectJSON } from "./app/models/project";
 import { getFileContent, selectFolder, writeFile } from "./services/fs.service";
 import { parseSourceToJSON } from "./services/parser.service";
@@ -64,17 +59,14 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             } catch {
                 projectJSONString = "";
-                srcDirRef.current = (
-                    await selectFolder({ title: "Select a Source Folder" })
-                )?.fsPath;
+                srcDirRef.current = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
 
                 parseSourceAndUpdatePanel(panel, srcDirRef);
             }
 
-            panel.webview.html = await getAtlasWebviewContent(panel.webview);
             panel.webview.postMessage({
                 type: APIMessageType.NewJSONData,
-                data: { fileBoxes: [], arrows: [] },
+                data: JSON.parse(projectJSONString),
             });
             panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, srcDirRef));
         }),
@@ -111,9 +103,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             switch (message.type) {
                 case WebViewMessageType.ChangeSource: {
-                    srcDirRef.current = (
-                        await selectFolder({ title: "Select a Source Folder" })
-                    )?.fsPath;
+                    srcDirRef.current = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
                     parseSourceAndUpdatePanel(panel, srcDirRef);
                     break;
                 }
