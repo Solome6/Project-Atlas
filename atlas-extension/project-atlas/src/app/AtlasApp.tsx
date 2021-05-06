@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { FaExchangeAlt } from "react-icons/fa";
+import { FaExchangeAlt, FaTrashAlt } from "react-icons/fa";
 import { HiOutlineRefresh } from "react-icons/hi";
 import { MdSettings } from "react-icons/md";
 import styled from "styled-components";
@@ -19,7 +19,7 @@ import {
     MIN_SCALE,
     SCALE_MULTIPLIER,
 } from "./models/camera";
-import { APIMessage, APIMessageType, WebViewMessageType } from "./models/Messages";
+import { APIMessage, APIMessageType, WebViewMessageType } from "./models/messages";
 import { Project } from "./models/project";
 import { clamp } from "./utils/mathUtils";
 import { convertToProject } from "./utils/projectUtils";
@@ -130,6 +130,7 @@ const DISABLE_SELECT = "disable-select";
 
 const refreshHandler = () => window.vscode.postMessage({ type: WebViewMessageType.Refresh });
 const changeSourceHandler = () => window.vscode.postMessage({ type: WebViewMessageType.ChangeSource });
+const unloadProjectHandler = () => window.vscode.postMessage({ type: WebViewMessageType.UnloadProject });
 
 export function AtlasApp() {
     const modalCountRef = useRef(0);
@@ -150,7 +151,7 @@ export function AtlasApp() {
     ]);
 
     // JSON State
-    const [project, setProject] = useState<Project>(null);
+    const [project, setProject] = useState<Project | null>(null);
 
     useEffect(() => {
         console.log("project:", project);
@@ -159,7 +160,7 @@ export function AtlasApp() {
     useEffect(() => {
         const newProjectEventHandler = ({ data: message }: MessageEvent<APIMessage>) => {
             if (message.type === APIMessageType.NewJSONData) {
-                setProject(convertToProject(message.data));
+                setProject(message.data && convertToProject(message.data));
             }
         };
 
@@ -268,7 +269,7 @@ export function AtlasApp() {
                 wheelPanHandler(wheelEvent);
             }
         };
-        const globalSVGClickHandler = (mouseEvent) => {
+        const globalSVGClickHandler = (mouseEvent: MouseEvent) => {
             switch (mouseEvent.detail) {
                 case Mouse.DoubleClick: {
                     setCamera({ x: DEFAULT_CAMERA.x, y: DEFAULT_CAMERA.y });
@@ -325,6 +326,7 @@ export function AtlasApp() {
                     <DropDownMenu visible={showDropDown}>
                         <Label>
                             <input
+                                title="Show Grid"
                                 type="checkbox"
                                 defaultChecked={showGrid}
                                 onInput={(e) => setShowGrid(!showGrid)}
@@ -334,6 +336,7 @@ export function AtlasApp() {
                         <Label style={{ gridColumn: "1 / 3" }}>
                             <span>Scale</span>
                             <input
+                                title="Scale"
                                 type="range"
                                 min={MIN_SCALE}
                                 max={MAX_SCALE}
@@ -343,6 +346,13 @@ export function AtlasApp() {
                             ></input>
                         </Label>
                     </DropDownMenu>
+                    <TopBarButton
+                        title="Unload Project"
+                        aria-label="Unload Project"
+                        onClick={unloadProjectHandler}
+                    >
+                        <FaTrashAlt />
+                    </TopBarButton>
                     <TopBarButton
                         title="Change Source"
                         aria-label="Change Source"

@@ -28,7 +28,7 @@ export function FileBox({ pathName, location: { x, y }, content, shortName }: Fi
         <svg className="fileBox" width={BOX_WIDTH} height={BOX_HEIGHT} x={x} y={y}>
             <Title className="title" x="0" y="0" height={TITLE_BAR_SIZE}>
                 <rect width="100%" height="100%" fill="red"></rect>
-                <text font-size="30px" fill="white" text-anchor="middle" x="50%" y="30">
+                <text fontSize="30px" fill="white" textAnchor="middle" x="50%" y="30">
                     <tspan>${shortName || pathName}</tspan>
                 </text>
             </Title>

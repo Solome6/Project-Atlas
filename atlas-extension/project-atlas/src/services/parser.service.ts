@@ -6,6 +6,8 @@ export interface ParseOptions {
 }
 
 export function parseSourceToJSON(srcDir: string, { timeout }: ParseOptions = {}): Promise<string> {
+    if (!srcDir) return Promise.reject("The given source directory is undefined");
+
     return new Promise((resolve, reject) => {
         let projectJSONString: string = "";
 
@@ -13,19 +15,18 @@ export function parseSourceToJSON(srcDir: string, { timeout }: ParseOptions = {}
         const atlasProcess = spawn(`java`, [`-jar`, jarPath, `${srcDir}`], { timeout });
 
         atlasProcess.stderr.on("data", (data) => {
-            reject(`stderr: ${data}`);
+            reject(`There was an error parsing the source directory:\n${data}`);
         });
 
         atlasProcess.stdout.on("data", (data) => {
-            projectJSONString += data.toString();
+            projectJSONString += String(data);
         });
 
         atlasProcess.on("close", async (code: number) => {
             if (code === 0) {
                 resolve(projectJSONString);
             } else {
-                const errorMsg = `Something went wrong, code: ${code}`;
-                reject(errorMsg);
+                reject(`There was an error parsing the source directory. Code: ${code}`);
             }
         });
     });

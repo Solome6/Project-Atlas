@@ -1,7 +1,7 @@
 import * as ReactDOM from "react-dom";
 import { AtlasApp } from "./AtlasApp";
 import "./index.css";
-import { WebViewMessage } from "./models/Messages";
+import { WebViewMessage } from "./models/messages";
 import { ProjectJSON } from "./models/project";
 
 interface VSCodeAPI {
@@ -26,4 +26,12 @@ declare global {
     }
 }
 
-ReactDOM.render(<AtlasApp />, document.getElementById("root"));
+const loadApp = () => ReactDOM.render(<AtlasApp />, document.getElementById("root"));
+
+if (document.readyState === "loading") {
+    // Loading hasn't finished yet
+    document.addEventListener("DOMContentLoaded", loadApp);
+} else {
+    // `DOMContentLoaded` has already fired
+    loadApp();
+}

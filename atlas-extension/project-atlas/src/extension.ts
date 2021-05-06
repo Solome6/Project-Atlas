@@ -1,10 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as path from "path";
-import { createRef, MutableRefObject } from "react";
 import * as vscode from "vscode";
 import { APIMessage, APIMessageType, WebViewMessage, WebViewMessageType } from "./app/models/messages";
-import { ProjectJSON } from "./app/models/project";
+import { ConfirmationOption } from "./models/popup.models";
 import { getFileContent, selectFolder, writeFile } from "./services/fs.service";
 import { parseSourceToJSON } from "./services/parser.service";
 
@@ -16,7 +15,13 @@ interface WebviewPanel extends vscode.WebviewPanel {
     webview: Webview;
 }
 
-const ATLAS_METADATA_LOCATION: string = "atlas-metadata.json";
+/**
+ * State related to the outer extension and not necessarily the Atlas app.
+ */
+interface ExtensionState {
+    srcDir?: string;
+}
+
 const CACHE_LOCATION: string = "atlas-for-project.json";
 
 // this method is called when your extension is activated
@@ -24,17 +29,12 @@ const CACHE_LOCATION: string = "atlas-for-project.json";
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "project-atlas" is now active!');
 
-    // Test command
-    let disposable = vscode.commands.registerCommand("project-atlas.helloWorld", () => {
-        vscode.window.showInformationMessage("Hello World from Project Atlas!");
-    });
-    context.subscriptions.push(disposable);
-
-    // constants
-    const srcDirRef = createRef() as MutableRefObject<string | undefined>;
+    // State
+    const extState: ExtensionState = {};
 
     context.subscriptions.push(
         vscode.commands.registerCommand("project-atlas.openAtlas", async () => {
+            // setup panel
             const panel: WebviewPanel = vscode.window.createWebviewPanel(
                 "atlas",
                 `${vscode.workspace.name ? `${vscode.workspace.name} ` : ""}Atlas`,
@@ -42,102 +42,93 @@ export function activate(context: vscode.ExtensionContext) {
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true,
-                    enableFindWidget: true,
+                    // enableFindWidget: true, // TODO: disabled until works with iframes
                 },
             );
             panel.iconPath = getExtensionAssetURI("short_logo.png");
 
-            let projectJSONString: string;
             try {
-                // BUG: Need to initialize srcDir if cache present
-                projectJSONString = await getFileContent(CACHE_LOCATION);
-                if (projectJSONString) {
-                    const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                    panel.webview.html = await getAtlasWebviewContent(panel.webview, projectJSON);
-                } else {
-                    throw new Error("Cache is empty.");
-                }
-            } catch {
-                projectJSONString = "";
-                srcDirRef.current = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
+                // BUG: Need to initialize extState if cache present // TODO
+                const projectJSONString: string = await getFileContent(CACHE_LOCATION);
+                if (!projectJSONString) throw new Error("Cache is empty.");
 
-                parseSourceAndUpdatePanel(panel, srcDirRef);
+                panel.webview.html = await getAtlasWebviewContent(panel.webview);
+                panel.webview.postMessage({
+                    type: APIMessageType.NewJSONData,
+                    data: JSON.parse(projectJSONString),
+                });
+            } catch {
+                extState.srcDir = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
             }
 
-            panel.webview.postMessage({
-                type: APIMessageType.NewJSONData,
-                data: JSON.parse(projectJSONString),
-            });
-            panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, srcDirRef));
+            parseSourceAndUpdateProject(panel, extState);
+            panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, extState));
         }),
     );
 
     /**
-     * Parses the current source directory and updates the panels HTML string.
+     * Creates a message handler for the Atlas App webview to communicate with the extension.
      */
-    async function parseSourceAndUpdatePanel(
-        panel: vscode.WebviewPanel,
-        srcDirRef: MutableRefObject<string | undefined>,
-    ): Promise<void> {
-        if (srcDirRef.current) {
-            try {
-                const projectJSONString = await parseSourceToJSON(srcDirRef.current);
-                writeFile(CACHE_LOCATION, projectJSONString, {
-                    logError: "Can't write to cache",
-                });
-
-                const projectJSON: ProjectJSON = JSON.parse(projectJSONString);
-                panel.webview.html = await getAtlasWebviewContent(panel.webview, projectJSON);
-            } catch (error) {
-                vscode.window.showErrorMessage(error);
-            }
-        }
-    }
-
     function createAtlasMessageHandler(
         panel: vscode.WebviewPanel,
-        srcDirRef: MutableRefObject<string | undefined>,
+        extState: ExtensionState,
     ): (message: WebViewMessage) => void {
         return async (message: WebViewMessage) => {
-            vscode.window.showInformationMessage("Message Received!");
+            vscode.window.showInformationMessage(`Message Received! ${message.type}`); // TODO: TEMP
 
             switch (message.type) {
                 case WebViewMessageType.ChangeSource: {
-                    srcDirRef.current = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
-                    parseSourceAndUpdatePanel(panel, srcDirRef);
+                    const newSrcDir = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
+                    if (!newSrcDir || newSrcDir === extState.srcDir) return;
+
+                    extState.srcDir = newSrcDir;
+                    parseSourceAndUpdateProject(panel, extState);
                     break;
                 }
                 case WebViewMessageType.Refresh: {
-                    parseSourceAndUpdatePanel(panel, srcDirRef);
+                    panel.webview.html = "";
+                    panel.webview.html = await getAtlasWebviewContent(panel.webview);
+                    parseSourceAndUpdateProject(panel, extState);
+                    break;
+                }
+                case WebViewMessageType.UnloadProject: {
+                    vscode.window
+                        .showInformationMessage(
+                            "Are you sure you would like to unload the current project?",
+                            ConfirmationOption.Yes,
+                            ConfirmationOption.No,
+                        )
+                        .then((option) => {
+                            if (option !== ConfirmationOption.Yes) return;
+
+                            panel.webview.postMessage({
+                                type: APIMessageType.NewJSONData,
+                                data: null,
+                            });
+                        });
                     break;
                 }
             }
         };
     }
 
-    async function getAtlasWebviewContent(webview: vscode.Webview, projectJSON?: ProjectJSON) {
+    async function getAtlasWebviewContent(webview: vscode.Webview) {
         return `<html lang="en">
             <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <script>
                     var vscode = acquireVsCodeApi();
                     var staticAssets = {
                         logo: "${getWebviewAssetURI(webview, "logo.png")}"
                     };
                 </script>
-                <script src="${getScriptURI("./app/app.js")}" defer></script>
+                <script src="${getScriptURI("./app/app.js")}" async></script>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
             <body>
                 <div id="root"></div>
             </body>
         </html>`;
-    }
-
-    function getScriptURI(filePath: string): vscode.Uri {
-        return vscode.Uri.file(path.join(__dirname, filePath)).with({
-            scheme: "vscode-resource",
-        });
     }
 
     function getExtensionAssetURI(fileName: string): vscode.Uri {
@@ -151,36 +142,30 @@ export function activate(context: vscode.ExtensionContext) {
     }
 }
 
-// async function generateContentSVG(projectJson: ProjectJSON) {
-//     // TODO: TEMPORARY
-//     // projectJson = JSON.parse(await getFileContent("./mocks/mock1.json")) as ProjectJSON;
+/**
+ * Parses the current source directory and posts a message to update the project.
+ */
+async function parseSourceAndUpdateProject(
+    panel: vscode.WebviewPanel,
+    { srcDir = "" }: ExtensionState,
+): Promise<void> {
+    try {
+        const projectJSONString = await parseSourceToJSON(srcDir);
+        writeFile(CACHE_LOCATION, projectJSONString, {
+            logError: "Can't write to cache",
+        });
 
-//     const { fileBoxes, arrows }: Project = convertToProject(projectJson);
-//     const fileBoxesSVGMap: Map<string, FileBoxSVG> = new Map();
+        panel.webview.postMessage({
+            type: APIMessageType.NewJSONData,
+            data: JSON.parse(projectJSONString),
+        });
+    } catch (error) {
+        vscode.window.showErrorMessage(error);
+    }
+}
 
-//     let x = 10;
-//     let y = 10;
-//     fileBoxes.forEach((fileBox) => {
-//         fileBoxesSVGMap.set(
-//             fileBox.pathName,
-//             createFileBox({
-//                 pathName: fileBox.pathName,
-//                 location: { x, y },
-//                 content: fileBox.source,
-//                 shortName: fileBox.pathName.slice(fileBox.pathName.lastIndexOf(".")),
-//             }),
-//         );
-//         x += 700; // TODO: TEMPORARY
-//         y += 200; // TODO: TEMPORARY
-//     });
-
-//     const arrowsSVG: ArrowSVG[] = [];
-//     arrows.forEach((arrow) => {
-//         arrowsSVG.push(createArrow(arrow, fileBoxesSVGMap));
-//     });
-
-//     return [...fileBoxesSVGMap.values(), ...arrowsSVG].map((svg) => svg.svg()).join("");
-// }
-
-// // this method is called when your extension is deactivated
-// export function deactivate() {}
+function getScriptURI(filePath: string): vscode.Uri {
+    return vscode.Uri.file(path.join(__dirname, filePath)).with({
+        scheme: "vscode-resource",
+    });
+}

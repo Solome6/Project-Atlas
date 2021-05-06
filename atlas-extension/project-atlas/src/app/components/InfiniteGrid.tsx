@@ -1,3 +1,4 @@
+//@ts-nocheck // TODO: TEMP
 import { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { createDefaultCamera } from "../models/camera";
@@ -34,8 +35,7 @@ export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
 
         // draw row lines
         for (let row = -1; row < 21; row++) {
-            const yPos =
-                (row * (height / 20) + (y % (height / 20))) * (scale / DEFAULT_CAMERA.scale);
+            const yPos = (row * (height / 20) + (y % (height / 20))) * (scale / DEFAULT_CAMERA.scale);
             ctx.moveTo(0, yPos);
             ctx.lineTo(width, yPos);
         }

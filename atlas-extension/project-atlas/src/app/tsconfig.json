@@ -14,7 +14,11 @@
         "downlevelIteration": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "experimentalDecorators": true,
+        "experimentalDecorators": false,
+        "removeComments": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true,
+        "strict": true
     },
     "exclude": [
         "node_modules"
