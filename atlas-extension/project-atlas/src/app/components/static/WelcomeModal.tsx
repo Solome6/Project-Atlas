@@ -1,11 +1,12 @@
-import * as React from "react";
+import { memo } from "react";
 
-export const WelcomeModal = React.memo(() => (
+export const WelcomeModal = memo(() => (
     <div>
         <div>
             <img
                 style={{ display: "block", margin: "auto" }}
                 src={window.staticAssets["logo"]}
+                alt="Project Atlas Logo"
             ></img>
         </div>
         <div style={{ textAlign: "center", marginTop: "25px" }}>

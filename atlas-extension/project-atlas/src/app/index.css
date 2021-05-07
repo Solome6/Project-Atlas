@@ -9,6 +9,7 @@
     /* Z-Indices */
     --zIndexBody: -2;
     --zIndexGrid: 0;
+    --zIndexSVG: 1;
     --zIndexTopBar: 5;
     --zIndexUI: 10;
     --zIndexModal: 100;
@@ -48,6 +49,12 @@ body {
 .fileBox foreignObject {
     content-visibility: auto;
 }
+
+#globalSVG {
+    z-index: var(--zIndexSVG);
+}
+
+/* Old Styles */
 
 div.line {
     display: flex;

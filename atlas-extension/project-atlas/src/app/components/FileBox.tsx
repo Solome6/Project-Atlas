@@ -1,9 +1,11 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import styled from "styled-components";
+import LineList from "./LineList";
 
 export interface FileBoxProps {
     pathName: string;
-    location: { x: number; y: number };
+    xLocation: number;
+    yLocation: number;
     content: string;
     shortName?: string;
 }
@@ -21,11 +23,11 @@ const Title = styled.svg`
     text-anchor: middle;
 `;
 
-export function FileBox({ pathName, location: { x, y }, content, shortName }: FileBoxProps) {
+const FileBox = memo(function ({ pathName, xLocation, yLocation, content, shortName }: FileBoxProps) {
     const contentLines = useMemo(() => content.split("\n"), [content]);
 
     return (
-        <svg className="fileBox" width={BOX_WIDTH} height={BOX_HEIGHT} x={x} y={y}>
+        <svg className="fileBox" width={BOX_WIDTH} height={BOX_HEIGHT} x={xLocation} y={yLocation}>
             <Title className="title" x="0" y="0" height={TITLE_BAR_SIZE}>
                 <rect width="100%" height="100%" fill="red"></rect>
                 <text fontSize="30px" fill="white" textAnchor="middle" x="50%" y="30">
@@ -37,16 +39,11 @@ export function FileBox({ pathName, location: { x, y }, content, shortName }: Fi
                     className="scrollBox"
                     style={{ overflow: "scroll", fontSize: CODE_SIZE, height: "570px" }}
                 >
-                    {contentLines.map((line, index) => (
-                        <div className="line" style={{ transform: `translate(0, ${index * 25})` }}>
-                            <span style={{ display: "inline-block", marginInlineEnd: "10px" }}>
-                                {index + 1}.
-                            </span>
-                            <div style={{ display: "inline-block", marginInlineEnd: "10px" }}>{line}</div>
-                        </div>
-                    ))}
+                    <LineList lines={contentLines} />
                 </div>
             </foreignObject>
         </svg>
     );
-}
+});
+
+export default FileBox;

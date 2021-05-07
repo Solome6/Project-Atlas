@@ -128,7 +128,7 @@ export default function GraphVisualization() {
     return (
         <>
             <InfiniteGrid x={camera.x} y={camera.y} scale={camera.scale} />
-            <svg id="globalSVG" width="100%" height="100%" style={{ zIndex: 1 }}>
+            <svg id="globalSVG" width="100%" height="100%">
                 <svg x={camera.x} y={camera.y}>
                     <g transform={`scale(${camera.scale})`}>
                         {project && <ProjectVisualizer project={project} />}

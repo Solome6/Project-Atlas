@@ -1,21 +1,26 @@
+import { memo } from "react";
 import { Project } from "../models/project";
-import { FileBox } from "./FileBox";
+import FileBox from "./FileBox";
 
 export interface ProjectVisualizerProps {
     project: Project;
 }
 
-export default function ProjectVisualizer({ project }: ProjectVisualizerProps) {
+const ProjectVisualizer = memo(function ({ project }: ProjectVisualizerProps) {
     return (
         <>
             {[...project.fileBoxes].map(([, { source, pathName }], index) => (
                 <FileBox
+                    key={index}
                     content={source}
-                    location={{ x: index * 700, y: index * 200 }}
+                    xLocation={index * 700}
+                    yLocation={index * 200}
                     pathName={pathName}
                     shortName={pathName.slice(pathName.lastIndexOf("."))}
                 />
             ))}
         </>
     );
-}
+});
+
+export default ProjectVisualizer;
