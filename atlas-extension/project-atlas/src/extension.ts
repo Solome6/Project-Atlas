@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as path from "path";
 import * as vscode from "vscode";
 import { APIMessage, APIMessageType, WebViewMessage, WebViewMessageType } from "./app/models/messages";
@@ -19,13 +17,12 @@ interface WebviewPanel extends vscode.WebviewPanel {
  * State related to the outer extension and not necessarily the Atlas app.
  */
 interface ExtensionState {
-    srcDir?: string;
+    srcDir?: string | null;
 }
 
 const CACHE_LOCATION: string = "atlas-for-project.json";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+/** Handler for when the extension is first activated */
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "project-atlas" is now active!');
 
@@ -45,23 +42,24 @@ export function activate(context: vscode.ExtensionContext) {
                     enableFindWidget: true, // disable to work with iframes instead of webviews (vscode 1.56)
                 },
             );
+
             panel.iconPath = getExtensionAssetURI("short_logo.png");
+            panel.webview.html = await getAtlasWebviewContent(panel.webview);
 
             try {
                 // BUG: Need to initialize extState if cache present // TODO
                 const projectJSONString: string = await getFileContent(CACHE_LOCATION);
                 if (!projectJSONString) throw new Error("Cache is empty.");
 
-                panel.webview.html = await getAtlasWebviewContent(panel.webview);
                 panel.webview.postMessage({
                     type: APIMessageType.NewJSONData,
                     data: JSON.parse(projectJSONString),
                 });
             } catch {
                 extState.srcDir = (await selectFolder({ title: "Select a Source Folder" }))?.fsPath;
+                parseSourceAndUpdateProject(panel, extState);
             }
 
-            parseSourceAndUpdateProject(panel, extState);
             panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, extState));
         }),
     );
@@ -92,6 +90,11 @@ export function activate(context: vscode.ExtensionContext) {
                     break;
                 }
                 case WebViewMessageType.UnloadProject: {
+                    if (!extState.srcDir) {
+                        vscode.window.showInformationMessage("No project is currently loaded.");
+                        return;
+                    }
+
                     vscode.window
                         .showInformationMessage(
                             "Are you sure you would like to unload the current project?",
@@ -101,6 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
                         .then((option) => {
                             if (option !== ConfirmationOption.Yes) return;
 
+                            extState.srcDir = null;
                             panel.webview.postMessage({
                                 type: APIMessageType.NewJSONData,
                                 data: null,
@@ -149,6 +153,8 @@ async function parseSourceAndUpdateProject(
     panel: vscode.WebviewPanel,
     { srcDir = "" }: ExtensionState,
 ): Promise<void> {
+    if (!srcDir) return;
+
     try {
         const projectJSONString = await parseSourceToJSON(srcDir);
         writeFile(CACHE_LOCATION, projectJSONString, {

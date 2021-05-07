@@ -5,7 +5,7 @@ export interface ProjectVisualizerProps {
     project: Project;
 }
 
-export function ProjectVisualizer({ project }: ProjectVisualizerProps) {
+export default function ProjectVisualizer({ project }: ProjectVisualizerProps) {
     return (
         <>
             {[...project.fileBoxes].map(([, { source, pathName }], index) => (

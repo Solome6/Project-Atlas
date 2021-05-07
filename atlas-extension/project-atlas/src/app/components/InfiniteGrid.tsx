@@ -21,7 +21,7 @@ interface InfiniteGridProps {
     scale: number;
 }
 
-export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
+export default function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
     const DEFAULT_CAMERA = useMemo(createDefaultCamera, []);
     const canvasRef = useRef<HTMLCanvasElement>() as MutableRefObject<HTMLCanvasElement>;
 

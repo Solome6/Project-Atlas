@@ -45,6 +45,10 @@ body {
     margin: 0;
 }
 
+.fileBox foreignObject {
+    content-visibility: auto;
+}
+
 div.line {
     display: flex;
     flex-direction: row;

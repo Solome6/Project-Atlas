@@ -1,26 +1,28 @@
-import { MutableRefObject, useCallback, useRef, useState } from "react";
+import { MutableRefObject, RefObject, useCallback, useRef, useState } from "react";
 
 const INITIAL_STATE = {};
 
+/**
+ * A synchronous state hook for mutable values.
+ * @param initialValue
+ */
 export function useRefState<T extends string>(
     initialValue: T | (() => T),
-): [MutableRefObject<T>, (newValue: T) => void];
+): [RefObject<T>, (newValue: T) => void];
 
 export function useRefState<T extends number>(
     initialValue: T | (() => T),
-): [MutableRefObject<T>, (newValue: T) => void];
+): [RefObject<T>, (newValue: T) => void];
 
 export function useRefState<T extends boolean>(
     initialValue: T | (() => T),
-): [MutableRefObject<T>, (newValue: T) => void];
+): [RefObject<T>, (newValue: T) => void];
 
 export function useRefState<T extends object>(
     initialValue: T | (() => T),
-): [MutableRefObject<T>, (newValue: Partial<T>) => void];
+): [RefObject<T>, (newValue: Partial<T>) => void];
 
-export function useRefState<T>(
-    initialValue: T | (() => T),
-): [MutableRefObject<T>, (newValue: Partial<T>) => void] {
+export function useRefState<T>(initialValue: T | (() => T)): [RefObject<T>, (newValue: Partial<T>) => void] {
     const isInitializedRef = useRef<boolean>(false);
     const stateRef = useRef<T>() as MutableRefObject<T>;
     const [, rerender] = useState(INITIAL_STATE);
