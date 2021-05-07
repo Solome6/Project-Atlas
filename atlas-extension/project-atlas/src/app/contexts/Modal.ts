@@ -60,5 +60,5 @@ export function modalsReducer(prevState: ModalObject[], action: ModalAction) {
     return newState;
 }
 
-const ModalsContext = React.createContext<ModalsManager>(null);
+const ModalsContext = React.createContext<ModalsManager | null>(null);
 export default ModalsContext;

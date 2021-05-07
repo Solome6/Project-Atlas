@@ -1,15 +1,18 @@
 const path = require("path");
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: {
         app: "./src/app/index.tsx",
     },
     output: {
-        publicPath: '/',
+        publicPath: "/",
         path: path.resolve(__dirname, "out/app"),
         filename: "[name].js",
     },
-    devtool: "eval-source-map",
+    devtool: argv.mode === "development" ? "eval-source-map" : undefined,
+    optimization: {
+        minimize: true,
+    },
     resolve: {
         extensions: [".js", ".ts", ".tsx", ".json"],
     },
@@ -40,4 +43,4 @@ module.exports = {
     performance: {
         hints: false,
     },
-};
+});

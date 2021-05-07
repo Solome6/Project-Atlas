@@ -1,5 +1,4 @@
-//@ts-nocheck // TODO: TEMP
-import { useEffect, useMemo, useRef } from "react";
+import { MutableRefObject, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { createDefaultCamera } from "../models/camera";
 import { getRootVar } from "../utils/cssUtils";
@@ -8,6 +7,9 @@ const StyledCanvas = styled.canvas`
     position: absolute;
     top: 0;
     left: 0;
+
+    width: 100%;
+    height: 100%;
 
     // Behavior
     z-index: var(--zIndexGrid);
@@ -21,10 +23,10 @@ interface InfiniteGridProps {
 
 export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
     const DEFAULT_CAMERA = useMemo(createDefaultCamera, []);
-    const canvasRef = useRef<HTMLCanvasElement>();
+    const canvasRef = useRef<HTMLCanvasElement>() as MutableRefObject<HTMLCanvasElement>;
 
     const drawGrid = () => {
-        const ctx = canvasRef.current.getContext("2d");
+        const ctx = canvasRef.current.getContext("2d")!;
         ctx.strokeStyle = getRootVar("--textColor");
         ctx.lineWidth = 0.1;
 
@@ -60,13 +62,14 @@ export function InfiniteGrid({ x, y, scale }: InfiniteGridProps) {
         updateCanvasSize();
 
         window.addEventListener("resize", updateCanvasSize);
-
         return () => {
             window.removeEventListener("resize", updateCanvasSize);
         };
     }, [canvasRef.current]);
 
-    useEffect(drawGrid, [x, y, scale]);
+    useEffect(() => {
+        window.requestAnimationFrame(drawGrid);
+    }, [x, y, scale]);
 
     return <StyledCanvas ref={canvasRef}></StyledCanvas>;
 }

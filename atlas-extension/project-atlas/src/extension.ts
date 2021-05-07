@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true,
-                    // enableFindWidget: true, // TODO: disabled until works with iframes
+                    enableFindWidget: true, // disable to work with iframes instead of webviews (vscode 1.56)
                 },
             );
             panel.iconPath = getExtensionAssetURI("short_logo.png");

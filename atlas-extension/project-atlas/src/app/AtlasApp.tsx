@@ -134,13 +134,12 @@ const unloadProjectHandler = () => window.vscode.postMessage({ type: WebViewMess
 
 export function AtlasApp() {
     const modalCountRef = useRef(0);
-    const initialCamera = useMemo(createDefaultCamera, []);
 
     const [showDropDown, setShowDropDown] = useState(false);
     const [showGrid, setShowGrid] = useState(true);
 
     // Camera State
-    const [{ current: camera }, setCamera] = useRefState<Camera>(initialCamera);
+    const [{ current: camera }, setCamera] = useRefState<Camera>(createDefaultCamera);
     // Modal States
     const [modals, dispatch] = useReducer<typeof modalsReducer>(modalsReducer, [
         {
@@ -211,6 +210,18 @@ export function AtlasApp() {
         };
 
         /**
+         * The click-based translation handler.
+         * @param mouseEvent The triggered mouse event.
+         */
+        const mouseTranslationHandler = ({ movementX, movementY }: MouseEvent) => {
+            if (camera.isPanningEnabled) {
+                setCamera({ isPanning: true });
+                translateCamera(movementX, movementY);
+                setCamera({ isPanning: false });
+            }
+        };
+
+        /**
          * The wheel-based zoom gesture handler.
          * @param wheelEvent The triggered wheel event.
          */
@@ -223,18 +234,6 @@ export function AtlasApp() {
                 const dx = (clientX - camera.x) * relativeShift;
                 const dy = (clientY - camera.y) * relativeShift;
                 translateCamera(-dx, -dy);
-            }
-        };
-
-        /**
-         * The click-based translation handler.
-         * @param mouseEvent The triggered mouse event.
-         */
-        const mouseTranslationHandler = ({ movementX, movementY }: MouseEvent) => {
-            if (camera.isPanningEnabled) {
-                setCamera({ isPanning: true });
-                translateCamera(movementX, movementY);
-                setCamera({ isPanning: false });
             }
         };
 
@@ -262,7 +261,6 @@ export function AtlasApp() {
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
         const globalSVGWheelHandler = (wheelEvent: WheelEvent) => {
-            wheelEvent.preventDefault();
             if (wheelEvent.ctrlKey) {
                 wheelZoomHandler(wheelEvent);
             } else {
