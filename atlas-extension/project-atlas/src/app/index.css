@@ -10,9 +10,33 @@
     --zIndexBody: -2;
     --zIndexGrid: 0;
     --zIndexSVG: 1;
-    --zIndexTopBar: 5;
-    --zIndexUI: 10;
+    --zIndexFixedUI: 5;
+    --zIndexFloatingUI: 10;
     --zIndexModal: 100;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bgColor);
+}
+
+body {
+    /* position: relative; */
+    z-index: var(--zIndexBody);
+    padding: 0;
+    margin: 0;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
 }
 
 button:hover {
@@ -24,26 +48,6 @@ button:active {
 
 .disable-select {
     user-select: none;
-}
-
-html,
-body,
-#root {
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--bgColor);
-}
-
-#root {
-    display: flex;
-    flex-direction: column;
-}
-
-body {
-    position: relative;
-    z-index: var(--zIndexBody);
-    padding: 0;
-    margin: 0;
 }
 
 .fileBox foreignObject {
@@ -82,7 +86,7 @@ div.classBox {
 
 foreignObject {
     position: relative;
-    z-index: -1;
+    /* z-index: -1; */
 }
 
 .scrollBoxBackground {

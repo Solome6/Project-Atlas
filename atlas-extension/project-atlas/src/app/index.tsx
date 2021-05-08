@@ -2,12 +2,12 @@ import * as ReactDOM from "react-dom";
 import { AtlasApp } from "./AtlasApp";
 import "./index.css";
 import { WebViewMessage, WebViewMessageType } from "./models/messages";
-import { ProjectJSON } from "./models/project";
 
 interface VSCodeAPI {
     postMessage(message: WebViewMessage): void;
 }
 interface Settings {
+    // TODO: TEMP
     __TEST__: string;
     gridEnabled: boolean;
 }
@@ -20,7 +20,6 @@ declare global {
     interface Window {
         acquireVsCodeApi(): VSCodeAPI;
         vscode: VSCodeAPI;
-        initialData: ProjectJSON;
         initialSettings: Settings;
         staticAssets: Assets;
     }

@@ -10,22 +10,17 @@ interface StyledModalProps {
     height?: "auto" | ModalSize;
 }
 
-function getModalWidthPercentage(size: ModalSize): WidthPercentage {
-    switch (size) {
-        case "small":
-            return "30%";
-        case "medium":
-            return "60%";
-        case "large":
-            return "90%";
-    }
-}
+type ModalSizeMap = {
+    [size in ModalSize]: WidthPercentage;
+};
+
+const modalSizeMap = Object.freeze({ small: "30%", medium: "60%", large: "90%" } as ModalSizeMap);
 
 const StyledModal = styled.div`
     // Layout
     margin: auto;
 
-    width: ${({ size }: StyledModalProps) => getModalWidthPercentage(size)};
+    width: ${({ size }: StyledModalProps) => modalSizeMap[size]};
     height: ${({ height = "auto" }: StyledModalProps) => height};
     max-width: 1100px;
     max-height: 75vh;
@@ -87,8 +82,9 @@ interface ModalProps {
     stickyClose?: boolean;
 }
 
-export function Modal({ size, children, id, closeable = true, stickyClose = false }: ModalProps) {
+export default function Modal({ size, children, id, closeable = true, stickyClose = false }: ModalProps) {
     const modalsManager = useModalsManager();
+
     return (
         <StyledModal size={size}>
             {closeable && (

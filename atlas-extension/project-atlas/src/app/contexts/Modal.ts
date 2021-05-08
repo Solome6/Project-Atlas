@@ -19,7 +19,7 @@ interface ModalOptions {
 }
 
 export interface ModalsManager {
-    modals?: ModalObject[];
+    modals: ModalObject[];
     addModal: (modal: Partial<ModalObject>) => void;
     removeModal: (modalId: ModalObject["id"]) => void;
 }

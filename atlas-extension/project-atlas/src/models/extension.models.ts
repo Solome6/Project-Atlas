@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
-import { APIMessage } from "../app/models/messages";
+import { APIMessage, WebViewMessage } from "../app/models/messages";
 
 export interface Webview extends vscode.Webview {
     postMessage: (message: APIMessage) => Thenable<boolean>;
+    onDidReceiveMessage: vscode.Event<WebViewMessage>;
 }
 
 export interface WebviewPanel extends vscode.WebviewPanel {

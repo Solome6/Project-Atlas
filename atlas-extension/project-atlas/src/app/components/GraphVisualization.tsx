@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import styled from "styled-components";
 import { useCamera, useProject } from "../hooks/contextHooks";
 import { DEFAULT_CAMERA, MAX_SCALE, MIN_SCALE, SCALE_MULTIPLIER } from "../models/camera";
 import { Mouse } from "../models/mouse";
@@ -10,6 +11,12 @@ type HTMLSVG = HTMLElement & SVGElement;
 
 /** The class name for disabling select */
 const DISABLE_SELECT = "disable-select";
+
+const StyledGraphVisualization = styled.div`
+    // Layout
+    display: block;
+    height: 100%;
+`;
 
 export default function GraphVisualization() {
     const [camera, setCamera] = useCamera();
@@ -75,14 +82,17 @@ export default function GraphVisualization() {
         const documentMouseLeaveHandler = () => {
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
+
         const globalSVGMouseDownHandler = () => {
             globalSVG.classList.add(DISABLE_SELECT);
             globalSVG.addEventListener("mousemove", mouseTranslationHandler);
         };
+
         const globalSVGMouseUpHandler = () => {
             globalSVG.classList.remove(DISABLE_SELECT);
             globalSVG.removeEventListener("mousemove", mouseTranslationHandler);
         };
+
         const globalSVGWheelHandler = (wheelEvent: WheelEvent) => {
             if (wheelEvent.ctrlKey) {
                 wheelZoomHandler(wheelEvent);
@@ -90,6 +100,7 @@ export default function GraphVisualization() {
                 wheelPanHandler(wheelEvent);
             }
         };
+
         const globalSVGClickHandler = (mouseEvent: MouseEvent) => {
             switch (mouseEvent.detail) {
                 case Mouse.DoubleClick: {
@@ -126,7 +137,7 @@ export default function GraphVisualization() {
     }, [camera]);
 
     return (
-        <>
+        <StyledGraphVisualization>
             <InfiniteGrid x={camera.x} y={camera.y} scale={camera.scale} />
             <svg id="globalSVG" width="100%" height="100%">
                 <svg x={camera.x} y={camera.y}>
@@ -135,6 +146,6 @@ export default function GraphVisualization() {
                     </g>
                 </svg>
             </svg>
-        </>
+        </StyledGraphVisualization>
     );
 }

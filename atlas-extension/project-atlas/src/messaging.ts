@@ -4,7 +4,7 @@ import { ExtensionState, WebviewPanel } from "./models/extension.models";
 import { ConfirmationOption } from "./models/popup.models";
 import { getFileContent, selectFolder, writeFile } from "./services/fs.service";
 import { parseSourceToJSON } from "./services/parser.service";
-import { getAtlasWebviewContent } from "./webview";
+import { getAtlasWebviewContent } from "./services/webview.service";
 
 const CACHE_LOCATION: string = "atlas-for-project.json";
 
@@ -21,7 +21,6 @@ export const webViewMessageHandlers = Object.freeze({
     [WebViewMessageType.Refresh]: handleAppRefresh,
     [WebViewMessageType.ChangeSource]: handleChangeSource,
     [WebViewMessageType.UnloadProject]: handleProjectUnload,
-    [WebViewMessageType.None]: () => {}, // TODO: TEMP
 } as WebViewMessageHandlerMap);
 
 async function handleAppLoad(panel: WebviewPanel, extState: ExtensionState) {

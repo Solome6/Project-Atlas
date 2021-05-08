@@ -1,6 +1,6 @@
 import * as path from "path";
 import { ExtensionContext, Uri } from "vscode";
-import { Webview } from "./models/extension.models";
+import { Webview } from "../models/extension.models";
 
 export async function getAtlasWebviewContent(webview: Webview, context: ExtensionContext) {
     return `<html lang="en">
@@ -30,7 +30,7 @@ export function getWebviewAssetURI(webview: Webview, context: ExtensionContext, 
 }
 
 export function getScriptURI(filePath: string): Uri {
-    return Uri.file(path.join(__dirname, filePath)).with({
+    return Uri.file(path.join(__dirname, "../", filePath)).with({
         scheme: "vscode-resource",
     });
 }

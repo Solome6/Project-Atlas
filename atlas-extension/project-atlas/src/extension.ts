@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { WebViewMessage } from "./app/models/messages";
 import { webViewMessageHandlers } from "./messaging";
 import { ExtensionState, WebviewPanel } from "./models/extension.models";
-import { getAtlasWebviewContent, getExtensionAssetURI } from "./webview";
+import { getAtlasWebviewContent, getExtensionAssetURI } from "./services/webview.service";
 
 /** Handler for when the extension is first activated */
 export function activate(context: vscode.ExtensionContext) {
@@ -27,20 +27,9 @@ export function activate(context: vscode.ExtensionContext) {
 
             panel.iconPath = getExtensionAssetURI(context, "short_logo.png");
             panel.webview.html = await getAtlasWebviewContent(panel.webview, context);
-            panel.webview.onDidReceiveMessage(createAtlasMessageHandler(panel, extState));
+            panel.webview.onDidReceiveMessage(async ({ type, data }: WebViewMessage) =>
+                webViewMessageHandlers[type](panel, extState, data),
+            );
         }),
     );
-}
-
-/**
- * Creates a message handler for the Atlas App webview to communicate with the extension.
- */
-function createAtlasMessageHandler(
-    panel: vscode.WebviewPanel,
-    extState: ExtensionState,
-): (message: WebViewMessage) => void {
-    return async ({ type, data }: WebViewMessage) => {
-        vscode.window.showInformationMessage(`Message Received! ${type}`); // TODO: TEMP
-        webViewMessageHandlers[type](panel, extState, data);
-    };
 }

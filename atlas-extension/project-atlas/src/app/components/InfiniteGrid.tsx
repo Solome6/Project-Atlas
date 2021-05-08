@@ -13,6 +13,7 @@ const StyledCanvas = styled.canvas`
 
     // Behavior
     z-index: var(--zIndexGrid);
+    pointer-events: none;
 `;
 
 interface InfiniteGridProps {
