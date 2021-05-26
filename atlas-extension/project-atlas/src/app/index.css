@@ -1,15 +1,72 @@
 :root {
+    /* Colors */
     --bgColor: var(--vscode-editor-background);
+    --bgColorSecondary: var(--vscode-editorWidget-background);
     --textColor: var(--vscode-editor-foreground);
     --textSelectionBgColor: var(--vscode-editor-selectionBackground);
     --textSelectionFgColor: var(--vscode-editor-selectionForeground);
+
+    /* Z-Indices */
+    --zIndexBody: -2;
+    --zIndexGrid: 0;
+    --zIndexSVG: 1;
+    --zIndexFixedUI: 5;
+    --zIndexFloatingUI: 10;
+    --zIndexModal: 100;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 html,
-body {
-    width: 100%;
-    height: 100%;
+body,
+#root {
+    width: 100vw;
+    height: 100vh;
     background-color: var(--bgColor);
+}
+
+body {
+    /* position: relative; */
+    z-index: var(--zIndexBody);
+    padding: 0;
+    margin: 0;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+}
+
+button:hover {
+    filter: brightness(0.9);
+}
+button:active {
+    filter: brightness(0.75);
+}
+
+.disable-select {
+    user-select: none;
+}
+
+.fileBox foreignObject {
+    content-visibility: auto;
+}
+
+#globalSVG {
+    z-index: var(--zIndexSVG);
+}
+
+/* Old Styles */
+
+div.line {
+    display: flex;
+    flex-direction: row;
+}
+
+.fileBox {
+    outline: 1.5px solid white;
 }
 
 div.classBox {
@@ -29,7 +86,7 @@ div.classBox {
 
 foreignObject {
     position: relative;
-    z-index: 0;
+    /* z-index: -1; */
 }
 
 .scrollBoxBackground {
@@ -90,9 +147,19 @@ svg {
 }
 
 #refreshAtlasButton.ui {
-    --margin: 15px;
-    top: var(--margin);
-    right: var(--margin);
+    --margin-top: 15px;
+    --margin-right: 15px;
+}
+
+#changeSourceButton.ui {
+    --margin-top: calc(15px + 2rem + 10px);
+    --margin-right: 15px;
+}
+
+#refreshAtlasButton.ui,
+#changeSourceButton.ui {
+    top: var(--margin-top);
+    right: var(--margin-right);
 
     font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
     font-size: 1.1rem;

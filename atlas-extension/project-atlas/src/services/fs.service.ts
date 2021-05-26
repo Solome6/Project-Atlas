@@ -15,12 +15,14 @@ export async function getFileContent(
     { logError }: LogOptions = {},
 ): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        fs.readFile(path.resolve(__dirname, "../", relativePath), (err, data) => {
+        const filePath = path.resolve(__dirname, "../", relativePath);
+        console.log(filePath);
+        fs.readFile(filePath, (err, data) => {
             if (err) {
                 vscode.window.showErrorMessage(
                     "Something went wrong. Try reinstalling Project Atlas",
                 );
-                logError && console.error(logError);
+                logError && console.error(logError, err);
                 reject(err);
             } else {
                 resolve(data.toString());

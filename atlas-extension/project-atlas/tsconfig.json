@@ -4,6 +4,7 @@
 		"module": "commonjs",
 		"target": "es6",
 		"outDir": "out",
+		"jsx": "react-jsx",
 		"lib": [
 			"es6",
 			"DOM"
@@ -18,11 +19,14 @@
 		"strict": true, /* enable all strict type-checking options */
 		/* Additional Checks */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+		"noFallthroughCasesInSwitch": true,
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
+		"forceConsistentCasingInFileNames": true,
+        "importHelpers": true
 	},
 	"exclude": [
 		"node_modules",
 		".vscode-test",
+		"**/app/**"
 	]
 }

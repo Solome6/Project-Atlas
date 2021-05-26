@@ -1,13 +1,9 @@
-import { FileBox, Project, ProjectJSON } from "./extension";
+import { FileBox, Project, ProjectJSON } from "../models/project";
 
 export function convertToProject({ fileBoxes, arrows }: ProjectJSON): Project {
     const fileBoxMap = new Map<string, FileBox>();
 
-    // Object.getOwnPropertyNames(fileBoxes).forEach((name) => {
-    //     fileBoxMap.set(name, fileBoxes[name]);
-    // });
-
-    fileBoxes.forEach((fileBox) => {
+    fileBoxes?.forEach((fileBox) => {
         fileBoxMap.set(fileBox.pathName, fileBox);
     });
 
